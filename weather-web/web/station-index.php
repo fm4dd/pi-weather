@@ -156,9 +156,8 @@ echo "<h4>Station Health</h4>\n";
 include("./raspidat.htm");
 ?>
     <p style="text-align: middle;">
-      <a href="https://raw.githubusercontent.com/fm4dd/pi-weather/master/images/DSC_0033s.jpg"><img src="https://github.com/fm4dd/pi-weather/raw/master/images/DSC_0033s.jpg" height="160px" width="120px"></a>
-    <p>
-      <a href="https://raw.githubusercontent.com/fm4dd/pi-weather/master/images/DSC_0034s.jpg"><img src="https://github.com/fm4dd/pi-weather/raw/master/images/DSC_0034s.jpg" height="160px" width="120px"></a>
+      <a href="https://github.com/fm4dd/pi-weather"><img src="https://github.com/fm4dd/pi-weather/raw/master/documentation/weather-station-v1.0/images/weather-station-v10-10.jpg" height="160px" width="120px"></a>
+    </p>
   </div>
 
   <div id="footer">
