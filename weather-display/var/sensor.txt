@@ -1,0 +1,1 @@
+1506765726 Temp=23.00*C Humidity=55.85% Pressure=101968.47Pa

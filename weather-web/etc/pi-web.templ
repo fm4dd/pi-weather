@@ -1,0 +1,35 @@
+##########################################################
+# pi-weatheri-cloud.conf 20170424 Frank4DD
+#
+# This is the pi-web configuration file setting
+# parameters required for programs to run. After changes
+# please check the log files for potential errors.
+##########################################################
+# pi-web-ver - Version of the pi-web
+# SW package.
+##########################################################
+pi-web-ver=110
+
+##########################################################
+# pi-web-sid - This is the base part of the unique
+# station identifier, used to separate weather stations
+# on the Internet servers web home.
+# Its using the schema pi-ws<XX>, where XX is incremented.
+#
+# Example: pi-weather-sid=pi-ws03, the base part is pi-ws
+##########################################################
+pi-web-sid=pi-web01
+
+##########################################################
+# pi-web-bin - The location of the server-side binaries
+# for web data generation.
+##########################################################
+pi-web-bin=/srv/app/pi-web/bin
+
+##########################################################
+# pi-web-home - The root location of the server-side
+# web folder, below are the individual station folders.
+##########################################################
+pi-web-home=/srv/www/std-root/weather.fm4dd.com
+
+########## End of pi-web.conf ##################

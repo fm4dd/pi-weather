@@ -1,0 +1,29 @@
+daytcalc.sh: Testing sunrise / sunset calculations
+##########################################################
+# Try calculating sunrise /sunset for 4 locations, and 4 
+# different times.
+##########################################################
+
+1. Leipzig, Germany (UTC+1):
+daytcalctest.sh: 1471059789 returned date=2016-08-13 sunrise=04:53 sunset=19:36 daytime=14:43
+daytcalctest.sh: 1486784589 returned date=2017-02-11 sunrise=07:32 sunset=17:18 daytime=09:46
+daytcalctest.sh: 1499341750 returned date=2017-07-06 sunrise=04:01 sunset=20:28 daytime=16:27
+daytcalctest.sh: 1515066550 returned date=2018-01-04 sunrise=08:14 sunset=16:16 daytime=08:02
+
+2. Tokyo, Japan (UTC+9):
+daytcalctest.sh: 1471059789 returned date=2016-08-13 sunrise=04:59 sunset=18:33 daytime=13:34
+daytcalctest.sh: 1486784589 returned date=2017-02-11 sunrise=06:33 sunset=17:19 daytime=10:46
+daytcalctest.sh: 1499341750 returned date=2017-07-06 sunrise=04:31 sunset=19:01 daytime=14:30
+daytcalctest.sh: 1515066550 returned date=2018-01-04 sunrise=06:51 sunset=16:42 daytime=09:51
+
+3. San Francisco Golden Gate Park, U.S.A (UTC-8):
+daytcalctest.sh: 1471059789 returned date=2016-08-13 sunrise=05:24 sunset=19:05 daytime=13:41
+daytcalctest.sh: 1486784589 returned date=2017-02-11 sunrise=07:04 sunset=17:45 daytime=10:41
+daytcalctest.sh: 1499341750 returned date=2017-07-06 sunrise=04:54 sunset=19:35 daytime=14:41
+daytcalctest.sh: 1515066550 returned date=2018-01-04 sunrise=07:25 sunset=17:05 daytime=09:40
+
+4. New York Statue of Liberty, U.S.A (UTC-5):
+daytcalctest.sh: 1471059789 returned date=2016-08-13 sunrise=05:05 sunset=18:56 daytime=13:51
+daytcalctest.sh: 1486784589 returned date=2017-02-11 sunrise=06:55 sunset=17:27 daytime=10:32
+daytcalctest.sh: 1499341750 returned date=2017-07-06 sunrise=04:31 sunset=19:31 daytime=15:00
+daytcalctest.sh: 1515066550 returned date=2018-01-04 sunrise=07:20 sunset=16:43 daytime=09:23

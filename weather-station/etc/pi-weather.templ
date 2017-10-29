@@ -1,0 +1,114 @@
+##########################################################
+# pi-weather.conf 20170424 Frank4DD
+#
+# This is the pi-weather configuration file that sets
+# parameters required for programs to run. After changes
+# please check the log files for potential errors.
+##########################################################
+# pi-weather-ver - Version of the pi-weather SW package.
+# May be used to match the config with binaries
+##########################################################
+pi-weather-ver=110
+
+##########################################################
+# pi-weather-sid - This is a unique identifier, used to
+# separate weather stations on the Internet server home.
+# Its using the schema pi-ws<XX>, where XX is incremented.
+#
+# Example: pi-weather-sid=pi-ws03
+##########################################################
+pi-weather-sid=pi-ws03
+
+##########################################################
+# pi-weather-dir - The location of the "pi-weather" home
+# directory. Used to determine correct program and file
+# paths. Uses above sid.  Example: /home/pi/pi-ws03
+##########################################################
+pi-weather-dir=/home/pi/pi-ws03
+
+##########################################################
+# pi-weather-lat, pi-weather-lon - GPS coordinates of the
+# weather station. Values need to be in decimal format.
+# Positive values are East and North, South and West are
+# represented through negative values (-).
+#
+# Examples:
+# 51.330832, 12.445130 Leipzig Moelkau
+# pi-weather-lat=51.330832
+# pi-weather-lon=12.445130
+#
+# 37.768837, -122.462008 = San Francisco Golden Gate Park
+##########################################################
+pi-weather-lat=35.610381
+pi-weather-lon=139.628999
+
+##########################################################
+# pi-weather-tzs - This is the weather station timezone
+# used to display the data matching local time and to
+# calculate sunrise/sunset values.
+##########################################################
+pi-weather-tzs="Europe/Berlin"
+
+##########################################################
+# pi-weather-rrd - The name of the RRD database
+##########################################################
+pi-weather-rrd=weather.rrd
+
+##########################################################
+# sensor-type, sensor-addr - The sensor type is used to
+# call the correct data read function. 
+#
+# The following types are supported: 
+# 1. bme280 - Bosch BME280 Temperature Humidity Pressure
+# 2. am2302 - DHT22/AM2302 one-wire Temperature Humidity 
+#             together with BMP180 Bosch Pressure Sensor
+#
+# sensor-addr - defines the I2C address of the BME280 or
+# BMP180 sensors.
+#
+# sensor-gpio - The GPIO pin # (only needed for the
+#                               DHT22/AM2302 sensor)
+##########################################################
+sensor-type=bme280
+sensor-addr=0x76
+#sensor-gpio=4
+
+##########################################################
+# pi-weather-tcal - Temperature offset calibration - add
+# or substract below value from sensor reading. Sensors
+# often read to high due to selfheating and raspi board.
+##########################################################
+pi-weather-tcal=-2
+
+##########################################################
+# pi-weather-nif - Name of the Raspi network interface
+# used to monitor the IP address, sent to the Internet
+# server for aiding in troubleshooting and connectivity
+##########################################################
+pi-weather-nif=wlan0
+
+##########################################################
+# pi-weather-sftp - Internet Web server file upload dest.
+##########################################################
+pi-weather-sftp=weather.fm4dd.com
+
+##########################################################
+# wcam-img-stime - Start time to process webcam images
+# Typically after sunrise, e.g. 6:00 AM works well.
+##########################################################
+wcam-img-stime=6
+
+##########################################################
+# wcam-img-etime - End time for processing webcam images
+# Typically late evening, e.g. 9:00 PM is OK to use.
+##########################################################
+wcam-img-etime=21
+
+##########################################################
+# wcam-img-reten - How long should we keep webcam images
+# on the Raspi? Depends on SD card size, 30-60 days is OK.
+# ~210MB per day x 30 days = approx 6.3 GB per month.
+##########################################################
+wcam-img-reten=30
+
+############ End of pi-weather.conf #####################

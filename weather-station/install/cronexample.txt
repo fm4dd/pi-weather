@@ -1,0 +1,22 @@
+# This file content are lines taken from /etc/crontab of a working pi-weather
+##############################################################################
+# weekly backups every Monday at 5:25
+25 5    * * 1   root    /srv/scripts/raspi-backup.sh
+##############################################################################
+# delete backups older then 85 days (12 weeks), 25 days (4 weeks) (19 days / 3 weeks)
+22 5    * * 1   root    /usr/bin/find /backup -mtime +85 -exec rm -f {} \; 2> /dev/null
+##########################################################
+# pi-weather: Get sensor data in 1-min intervals, + upload
+*  *    * * *   pi      /home/pi/pi-ws01/bin/send-data.sh > /home/pi/pi-ws01/var/send-data.log 2>&1
+##########################################################
+# pi-weather: Updates RRD DB and graphs in 1-min intervals
+*  *    * * *   pi      /home/pi/pi-ws01/bin/rrdupdate.sh > /home/pi/pi-ws01/var/rrdupdate.log 2>&1
+##########################################################
+# pi-weather: Archive webcam pics taken in 1-min intervals
+*  *    * * *   pi      /home/pi/pi-ws01/bin/wcam-archive -i /home/pi/pi-ws01/var/raspicam.jpg -d /home/pi/pi-ws01/web/wcam -s 6 -e 21 -r 30 >/dev/null 2>&1
+##########################################################
+# pi-weather: Upload RRD XML backup and MP4 timelapse file
+9  1    * * *   pi      /home/pi/pi-ws01/bin/send-night.sh > /home/pi/pi-ws01/log/send-night.log 2>&1
+##########################################################
+# pi-weather: Generate the daily MP4 timelapse file
+30 0    * * *   pi      /home/pi/pi-ws01/bin/wcam-mkmovie -a /home/pi/pi-ws01/wcam -o /home/pi/pi-ws01/var/yesterday.mp4 > /home/pi/pi-ws01/log/wcam-mkmovie.log 2>&1

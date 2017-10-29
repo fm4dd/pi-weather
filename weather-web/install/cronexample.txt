@@ -1,0 +1,4 @@
+##############################################################################
+# Raspberry Pi Weather Station Data Updates
+* * * * * root /srv/app/pi-web01/bin/rrdupdate.sh pi-ws01 > /srv/app/pi-web01/chroot/pi-ws01/log/rrd.log 2>&1
+* * * * * root /srv/app/pi-web01/bin/rrdupdate.sh pi-ws03 > /srv/app/pi-web01/chroot/pi-ws03/log/rrd.log 2>&1
