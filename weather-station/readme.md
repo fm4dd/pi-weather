@@ -4,6 +4,7 @@ This directory is tagged as a branch, to be cloned or copied into the weather st
 
 ## Directory Overview
 
+```
 weather-station/
  |
  +-- backup/ --> (empty) Used to store local configuration and data during software upgrades
@@ -15,6 +16,7 @@ weather-station/
  +-- src/ --> Contains C source code for the station software. Compilation and install is done through setup.sh inside the install directory.
  |
  +-- web/ --> Contains the template files for the local website that runs on the weather station. The files are moved into place through setup.sh.
+```
 
 ## Prerequisites
 
