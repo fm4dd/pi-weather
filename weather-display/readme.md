@@ -1,4 +1,4 @@
-# pi-display: Weather Station Display Code
+# Weather Display Software Package
 
 ## Background
 
