@@ -4,7 +4,6 @@ This directory is tagged as a branch, to be cloned or copied into the weather st
 
 ## Directory Overview
 
-```
 weather-station/
  |
  +-- backup/ --> (empty) Used to store local configuration and data during software upgrades
@@ -16,7 +15,6 @@ weather-station/
  +-- src/ --> Contains C source code for the station software. Compilation and install is done through setup.sh inside the install directory.
  |
  +-- web/ --> Contains the template files for the local website that runs on the weather station. The files are moved into place through setup.sh.
-```
 
 ## Prerequisites
 
@@ -124,7 +122,7 @@ The weather station is typically part of a private (home) network that allows on
 
 After the Internet web server has been set up, the sensor data is feed to Internet web server in parallel to the local RRD database updates. To compensate for temporary local network outages, a daily transmission sends the full RRD database to the Internet server. 
 
-Because RRD databases are CPU-specific, they can't be copied from a Raspi (ARM) to an Intel environment. For RRD database migrations, the `rrdtool dump` command creates a XML extract that can be restored to different platforms. For manual DB transmission, below commands serve as an example:
+Because RRD databases are CPU-specific, they can't be copied from a Raspi (ARM) to an Intel environment. For RRD database mgrations, the `rrdtool dump` command creates a XML extract that can be restored to different platforms. For manal DB transmission, below commands serve as an example:
 
 - Raspi side
 
@@ -142,3 +140,15 @@ ws01@weatherweb:~ $ rrdtool restore /home/ws01/weather.xml pi-ws01.rrd
 ## Optional Hardware Setup
 
 The script `rtcenable.sh` can enable an optional battery-buffered real-time clock module. The RTC is helpful for weather stations without permanent Internet access. If they are unable to sync their time from the net, they are at risk of running wrong system time, which in turn could break the sensor data collection.
+
+## Sensor Failures and Recovery
+
+Due to age or sever weather conditions, sensors break down after some time. Instead of just stopping operations, they often start to send wrong data readings. It is not uncommon to see -2 temperature, 500000 Pa pressure or 100% humidity in such circumstances. While the weather station has a "outlier" function to identify and eliminate sporadic, single miss-reads, the continous reporting of false data from a broken sensor is harder to handle. After fixing the sensor hardware, database cleanup is done to eradicate the erroneous longterm data which take hold in the MIN/MAX aggregations. With the database type being RRD, there is no easy way to edit or update individual entries.
+
+### rrdrepair.sh
+
+The script `rrdrepair.sh` was created to help with database cleanup in between current data updates. It exports the RRD content into XML, which is then updated by a prepared vi source file before being re-imported into RRD. Due to the RRD size, XML line count is quite high, which slows down vi's line matching. Ideally the RRD repair process is done in between the 1-minute data readings to prevent loss of a reading. `rrdrepair.sh` therefore catches the moment right after the latest file update to maximise the time window.
+
+### wsreplace.sh
+
+The script `wsreplace.sh` automates the transfer of the weather station work directory and other necessary data to a second station in order to let it take over the function of the first. This allows for a quick swap of a complete weather station for repairs or upgrades. Before, this swap needed too much time for extracting the old stations micro SD card. 

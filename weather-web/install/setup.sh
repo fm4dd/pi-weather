@@ -323,7 +323,7 @@ echo
 echo "##########################################################"
 echo "# 16. Installing local web server documents and images"
 echo "##########################################################"
-for img in ../web/*.gif; do
+for img in ../web/img/*; do
    fbname=$(basename "$img")
    echo "cp $img $HTMLDIR/images"
    cp $img $HTMLDIR/images

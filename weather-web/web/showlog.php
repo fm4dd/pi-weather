@@ -115,10 +115,8 @@
 </form>
     </td></tr>
     </table>
-    <p style="text-align: middle;">
-      <a href="https://raw.githubusercontent.com/fm4dd/pi-weather/master/images/DSC_0033s.jpg"><img src="https://github.com/fm4dd/pi-weather/raw/master/images/DSC_0033s.jpg" height="160px" width="120px"></a>
-    <p>
-      <a href="https://raw.githubusercontent.com/fm4dd/pi-weather/master/images/DSC_0034s.jpg"><img src="https://github.com/fm4dd/pi-weather/raw/master/images/DSC_0034s.jpg" height="160px" width="120px"></a>
+    <a href="https://github.com/fm4dd/pi-weather"><img src="../images/weather-station-v10-10s.png" height="160px" width="120px"></a>
+    <a href="https://github.com/fm4dd/pi-weather"><img src="../images/weather-station-v11-02s.png" height="160px" width="120px"></a>
   </div>
 
   <div id="footer">

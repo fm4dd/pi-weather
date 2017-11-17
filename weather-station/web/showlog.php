@@ -40,6 +40,12 @@
 <div id="content" style="min-height: 630px;">
 
 <?php
+  // get CPU temperature
+  $cputemp = exec('cat /sys/class/thermal/thermal_zone0/temp |  awk \'{printf("%.2f°C\n", $1/1000)}\'');
+  print "<h3>Raspberry Pi CPU temperature: $cputemp</h3>"; ?>
+  <hr />
+  <div class=\"fullgraph"><img src="images/daily_ctmp.png" alt="Current RPI CPU Temperature"></div>
+<?php
   $default = "../var/send-data.log";
   $filename = (!isset($_GET['p'])) ? $default : urldecode($_GET['p']);
   $showlines = (!isset($_GET['lines'])) ? 40 : $_GET['lines'];
@@ -106,10 +112,8 @@
 </form>
     </td></tr>
     </table>
-    <p style="text-align: middle;">
-      <a href="https://raw.githubusercontent.com/fm4dd/pi-weather/master/images/DSC_0033s.jpg"><img src="https://github.com/fm4dd/pi-weather/raw/master/images/DSC_0033s.jpg" height="160px" width="120px"></a>
-    <p>
-      <a href="https://raw.githubusercontent.com/fm4dd/pi-weather/master/images/DSC_0034s.jpg"><img src="https://github.com/fm4dd/pi-weather/raw/master/images/DSC_0034s.jpg" height="160px" width="120px"></a>
+    <a href="https://github.com/fm4dd/pi-weather"><img src="images/weather-station-v10-10s.png" height="160px" width="120px"></a>
+    <a href="https://github.com/fm4dd/pi-weather"><img src="images/weather-station-v11-02s.png" height="160px" width="120px"></a>
   </div>
 
   <div id="footer">

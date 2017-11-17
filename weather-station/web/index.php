@@ -56,7 +56,7 @@
   $dt = new DateTime();                             // create new Date object
   $dt->setTimestamp($tstamp);                       // set Date object to tstamp
   $output = $dt->format('l F j Y, H:i:s');          // format output string
-  echo "<h3>Sensor Data: $output ";
+  echo "<h3>Date: $output ";
   include("./daytime.htm");
   echo "</h3>\n";
 } ?>
@@ -66,10 +66,10 @@
 <div class="fullgraph"><img src="images/daily_temp.png" alt="Current Temperature Graph"></div>
 <div class="fullgraph"><img src="images/daily_humi.png" alt="Current Humidity Graph"></div>
 <div class="fullgraph"><img src="images/daily_bmpr.png" alt="Current Pressure Graph"></div>
-<div class="copyright"><a href="javascript:elementHideShow('weekly');">Expand or Hide Shortterm Details</a></div>
+<div class="copyright"><a href="javascript:elementHideShow('s_term');">Expand or Hide Shortterm Details</a></div>
 <h3>Shortterm View:</h3>
 <hr />
-<div class="showext" id="weekly" style="display: none;">
+<div class="showext" id="s_term" style="display: none;">
 <?php
 // Below code generates the mp4 movie table, if enough files exist
 $images = array();
@@ -131,14 +131,22 @@ if($filecount == $cycle) {
 <div class="fullgraph"> <img src="images/monthly_humi.png" alt="Weekly Humidity Graph"> </div>
 <div class="fullgraph"> <img src="images/monthly_bmpr.png" alt="Weekly Pressure Graph"> </div>
 </div>
-<div class="copyright"><a href="javascript:elementHideShow('yearly');">Expand or Hide Midterm Details</a></div>
+<div class="copyright"><a href="javascript:elementHideShow('m_term');">Expand or Hide Midterm Details</a></div>
 <h3>Midterm View:</h3>
 <hr />
-<div class="showext" id="yearly" style="display: none;">
+<div class="showext" id="m_term" style="display: none;">
 <?php include("./momimax.htm"); ?>
 <div class="fullgraph"> <img src="images/yearly_temp.png" alt="Temperature Graph"> </div>
 <div class="fullgraph"> <img src="images/yearly_humi.png" alt="Humidity Graph"> </div>
 <div class="fullgraph"> <img src="images/yearly_bmpr.png" alt="Pressure Graph"> </div>
+</div>
+<div class="copyright"><a href="javascript:elementHideShow('l_term');">Expand or Hide Longterm Details</a></div>
+<h3>Longterm View:</h3>
+<hr />
+<div class="showext" id="l_term" style="display: none;">
+<div class="fullgraph"> <img src="images/twyear_temp.png" alt="Temperature Graph"> </div>
+<div class="fullgraph"> <img src="images/twyear_humi.png" alt="Humidity Graph"> </div>
+<div class="fullgraph"> <img src="images/twyear_bmpr.png" alt="Pressure Graph"> </div>
 </div>
 </div>
 
@@ -169,6 +177,9 @@ $mem = exec('free | grep Mem | awk \'{printf("%.0fM of %.0fM\n", $3/1024, $2/102
 
 // get system free disk space
 $dfree = exec('df -h | grep \'/dev/root\' | awk {\'print $3 " of " $2\'}');
+
+// get CPU temperature
+$cputemp = exec('cat /sys/class/thermal/thermal_zone0/temp |  awk \'{printf("%.2f°C\n", $1/1000)}\'');
 
 // get pi-weather config data
 ini_set("auto_detect_line_endings", true);
@@ -206,8 +217,8 @@ echo "<tr><td>".$conf["pi-weather-lon"]."</td></tr>\n";
 echo "</table>\n";
 
 // write station health table to sidebar
-echo "<table class\"station\">\n";
 echo "<h4>Station Health</h4>\n";
+echo "<table class\"station\">\n";
 echo "<tr><th>Station Uptime:</th></tr>\n";
 echo "<tr><td>".$ut."</td></tr>\n";
 echo "<tr><th>IP Address:</th></tr>\n";
@@ -218,11 +229,14 @@ echo "<tr><th>RAM Usage:</th></tr>\n";
 echo "<tr><td>".$mem."</td></tr>\n";
 echo "<tr><th>Disk Usage:</th></tr>\n";
 echo "<tr><td>".$dfree."</td></tr>\n";
+echo "<tr><th>CPU Temperature:</th></tr>\n";
+echo "<tr><td>".$cputemp."</td></tr>\n";
 echo "</table>\n";
 ?>
-    <p style="text-align: middle;">
-      <a href="https://github.com/fm4dd/pi-weather"><img src="https://github.com/fm4dd/pi-weather/raw/master/documentation/weather-station-v1.0/images/weather-station-v10-10.jpg" height="160px" width="120px"></a>
-    </p>
+    <h4>Station Images</h4>
+    <a href="https://github.com/fm4dd/pi-weather"><img src="images/weather-station-v10-10s.png" height="160px" width="120px"></a>
+    <a href="https://github.com/fm4dd/pi-weather"><img src="images/weather-station-v11-02s.png" height="160px" width="120px"></a>
+    <a href="https://github.com/fm4dd/pi-weather"><img src="images/weather-display-v10-05s.png" height="160px" width="120px"></a>
   </div>
 
   <div id="footer">

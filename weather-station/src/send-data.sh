@@ -125,6 +125,7 @@ CPULOAD=`top -bn 1 | awk 'NR>7{s+=$9} END {print s/4"%"}'`
 MEMUSED=`free | grep Mem | awk '{printf("%.0fM of %.0fM\n", $3/1024, $2/1024)}'`
 # Get the disk usage, e.g. 32GB of 59GB
 DISKUSED=`df -h | grep '/dev/root' | awk {'print $3 " of " $2'}`
+CPUTEMP=`cat /sys/class/thermal/thermal_zone0/temp |  awk '{printf("%.2f°C\n", $1/1000)}'`
 
 echo "send-data.sh: Updating $WHOME/var/raspidat.htm"
 
@@ -140,6 +141,8 @@ cat <<EOM >$WHOME/var/raspidat.htm
 <tr><td>$MEMUSED</td></tr>
 <tr><th>Disk Usage:</th></tr>
 <tr><td>$DISKUSED</td></tr>
+<tr><th>CPU Temperature:</th></tr>
+<tr><td>$CPUTEMP</td></tr>
 </table>
 EOM
 

@@ -237,7 +237,7 @@ echo "Done."
 echo
 
 echo "##########################################################"
-echo "# 12. Call rrdcreate.sh to create the empty RRD database"
+echo "# 12. rrdcreate and rrdcreate2 creates empty RRD databases"
 echo "##########################################################"
 ./rrdcreate.sh
 RRD_DIR=${MYCONFIG[pi-weather-dir]}/rrd
@@ -249,6 +249,11 @@ if [[ ! -e $RRD ]]; then
 fi
 
 ls -l $RRD
+
+RRD2=$RRD_DIR/rpitemp.rrd
+./rrdcreate2.sh
+ls -l $RRD2
+
 echo "Done."
 echo
 
@@ -451,7 +456,7 @@ echo
 echo "##########################################################"
 echo "# 22. Installing local web server documents and images"
 echo "##########################################################"
-for img in ../web/*.gif; do
+for img in ../web/img/*; do
    fbname=$(basename "$img")
    echo "cp $img $HOMEDIR/web/images"
    cp $img $HOMEDIR/web/images

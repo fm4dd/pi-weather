@@ -128,6 +128,14 @@ include("./daymimax.htm");
 <div class="fullgraph"> <img src="images/yearly_humi.png" alt="Humidity Graph"> </div>
 <div class="fullgraph"> <img src="images/yearly_bmpr.png" alt="Pressure Graph"> </div>
 </div>
+<div class="copyright"><a href="javascript:elementHideShow('l_term');">Expand or Hide Longterm Details</a></div>
+<h3>Longterm View:</h3>
+<hr />
+<div class="showext" id="l_term" style="display: none;">
+<div class="fullgraph"> <img src="images/twyear_temp.png" alt="Temperature Graph"> </div>
+<div class="fullgraph"> <img src="images/twyear_humi.png" alt="Humidity Graph"> </div>
+<div class="fullgraph"> <img src="images/twyear_bmpr.png" alt="Pressure Graph"> </div>
+</div>
 </div>
 
 <div id="sidecontent">
@@ -155,9 +163,10 @@ echo "</table>\n";
 echo "<h4>Station Health</h4>\n";
 include("./raspidat.htm");
 ?>
-    <p style="text-align: middle;">
-      <a href="https://github.com/fm4dd/pi-weather"><img src="https://github.com/fm4dd/pi-weather/raw/master/documentation/weather-station-v1.0/images/weather-station-v10-10.jpg" height="160px" width="120px"></a>
-    </p>
+    <h4>Station Images</h4>
+    <a href="https://github.com/fm4dd/pi-weather"><img src="../images/weather-station-v10-10s.png" height="160px" width="120px"></a>
+    <a href="https://github.com/fm4dd/pi-weather"><img src="../images/weather-station-v11-02s.png" height="160px" width="120px"></a>
+    <a href="https://github.com/fm4dd/pi-weather"><img src="../images/weather-display-v10-05s.png" height="160px" width="120px"></a>
   </div>
 
   <div id="footer">

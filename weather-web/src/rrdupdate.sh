@@ -489,6 +489,7 @@ if [ ! -f $YTEMPPNG ] || [[ "$FILEAGE" < "$midnight" ]] || [ -v REPROCESS ]; the
   --start end-18mon --end 00:00 \
   --x-grid MONTH:1:YEAR:1:MONTH:1:2592000:%b \
   --title='Temperature, Yearly View' \
+  --slope-mode \
   --width=619 \
   --height=77 \
   --border=1  \
@@ -515,6 +516,7 @@ if [ ! -f $YHUMIPNG ] || [[ "$FILEAGE" < "$midnight" ]] || [ -v REPROCESS ]; the
   --title='Relative Humidity, Yearly View' \
   --upper-limit=100 \
   --lower-limit=0 \
+  --slope-mode \
   --width=619 \
   --height=77 \
   --border=1  \
@@ -539,6 +541,95 @@ if [ ! -f $YBMPRPNG ] || [[ "$FILEAGE" < "$midnight" ]] || [ -v REPROCESS ]; the
   --start end-18mon --end 00:00 \
   --x-grid MONTH:1:YEAR:1:MONTH:1:2592000:%b \
   --title='Barometric Pressure, Yearly View' \
+  --slope-mode \
+  --width=619 \
+  --height=77 \
+  --border=1  \
+  --alt-autoscale \
+  --alt-y-grid \
+  --units-exponent=0 \
+  --color SHADEA#000000 \
+  --color SHADEB#000000 \
+  DEF:bmpr1=$RRD:bmpr:AVERAGE \
+  'CDEF:bmpr2=bmpr1,100,/' \
+  'AREA:bmpr2#007744:Barometric Pressure in hPa' \
+  'GPRINT:bmpr2:MIN:Min\: %3.2lf' \
+  'GPRINT:bmpr2:MAX:Max\: %3.2lf' \
+  'GPRINT:bmpr2:LAST:Last\: %3.2lf'
+fi
+
+##########################################################
+# Create the 18-year graph images
+##########################################################
+TWYTEMPPNG=$IMGPATH/twyear_temp.png
+TWYHUMIPNG=$IMGPATH/twyear_humi.png
+TWYBMPRPNG=$IMGPATH/twyear_bmpr.png
+
+##########################################################
+# Check if the 18-year temp file has already
+# been updated today, otherwise generate it.
+##########################################################
+if [ -f $TWYTEMPPNG ]; then FILEAGE=$(date -r $TWYTEMPPNG +%s); fi
+if [ ! -f $TWYTEMPPNG ] || [[ "$FILEAGE" < "$midnight" ]] || [ -v REPROCESS ]; then
+  echo -n "rrdupdate.sh: Creating image $TWYTEMPPNG... "
+
+  $RRDTOOL graph $TWYTEMPPNG -a PNG \
+  --start end-18years --end 00:00 \
+  --x-grid YEAR:1:YEAR:10:YEAR:1:31536000:%Y \
+  --title='Temperature, 18-Year View' \
+  --slope-mode \
+  --width=619 \
+  --height=77 \
+  --border=1  \
+  --color SHADEA#000000 \
+  --color SHADEB#000000 \
+  DEF:temp1=$RRD:temp:AVERAGE \
+  'AREA:temp1#99001F:Temperature in °C' \
+  'GPRINT:temp1:MIN:Min\: %3.2lf' \
+  'GPRINT:temp1:MAX:Max\: %3.2lf' \
+  'GPRINT:temp1:LAST:Last\: %3.2lf'
+fi
+
+##########################################################
+# Check if the 18-year humi file has already
+# been updated today, otherwise generate it.
+##########################################################
+if [ -f $TWYHUMIPNG ]; then FILEAGE=$(date -r $TWYHUMIPNG +%s); fi
+if [ ! -f $TWYHUMIPNG ] || [[ "$FILEAGE" < "$midnight" ]] || [ -v REPROCESS ]; then
+  echo -n "rrdupdate.sh: Creating image $TWYHUMIPNG... "
+
+  $RRDTOOL graph $TWYHUMIPNG -a PNG \
+  --start end-18years --end 00:00 \
+  --x-grid YEAR:1:YEAR:10:YEAR:1:31536000:%Y \
+  --title='Humidity, 18-Year View' \
+  --upper-limit=100 \
+  --lower-limit=0 \
+  --slope-mode \
+  --width=619 \
+  --height=77 \
+  --border=1  \
+  --color SHADEA#000000 \
+  --color SHADEB#000000 \
+  DEF:humi1=$RRD:humi:AVERAGE \
+  'AREA:humi1#004477:Humidity in percent' \
+  'GPRINT:humi1:MIN:Min\: %3.2lf' \
+  'GPRINT:humi1:MAX:Max\: %3.2lf' \
+  'GPRINT:humi1:LAST:Last\: %3.2lf'
+fi
+
+##########################################################
+# Check if the 18-year bmpr file has already
+# been updated today, otherwise generate it.
+##########################################################
+if [ -f $TWYBMPRPNG ]; then FILEAGE=$(date -r $TWYBMPRPNG +%s); fi
+if [ ! -f $TWYBMPRPNG ] || [[ "$FILEAGE" < "$midnight" ]] || [ -v REPROCESS ]; then
+  echo -n "rrdupdate.sh: Creating image $TWYBMPRPNG... "
+
+  $RRDTOOL graph $TWYBMPRPNG -a PNG \
+  --start end-18years --end 00:00 \
+  --x-grid YEAR:1:YEAR:10:YEAR:1:31536000:%Y \
+  --title='Barometric Pressure, 18-Year View' \
+  --slope-mode \
   --width=619 \
   --height=77 \
   --border=1  \

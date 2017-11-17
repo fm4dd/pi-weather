@@ -29,7 +29,6 @@ readconfig() {
    done 
 }
 
-
 echo "##########################################################"
 echo "# Check for the config file, and source it"
 echo "##########################################################"
@@ -42,6 +41,18 @@ readconfig MYCONFIG < "$CONFIG"
 STRLEN=${#MYCONFIG[@]}
 echo "sensortest.sh: Reading file [$CONFIG] with [$STRLEN] values"
 WHOME=${MYCONFIG[pi-weather-dir]}
+
+echo "##########################################################"
+echo "# Check if the I2C bus was enabled with raspi-config"
+echo "##########################################################"
+GREP=`grep "dtparam=i2c_arm=on" /boot/config.txt`
+if [[ $? > 0 ]]; then
+  echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+  echo "ATTENTION: the I2C bus was not enabled with raspi-config!"
+  echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+else
+  echo "OK. I2C bus is enabled in /boot/config.txt: $GREP"
+fi
 
 echo "##########################################################"
 echo "# Try reading temperature, humidity and pressure data"
@@ -75,19 +86,38 @@ echo "sensortest.sh: Length of sensor data: $STRLEN"
 echo "sensortest.sh: getsensor return code: $RETURN"
 
 echo "##########################################################"
-echo "# Check if we got a camera. If yes, take a webcam picture"
+echo "# Check if the camera was enabled with raspi-config"
 echo "##########################################################"
-WCAMCHECK=`vcgencmd get_camera`;
+GREP=`grep "start_x=1" /boot/config.txt`
+if [[ $? > 0 ]]; then
+  echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+  echo "ATTENTION: the camera was not enabled with raspi-config!"
+  echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+else
+  echo "OK. Camera is enabled in /boot/config.txt: $GREP"
+fi
+
+echo "##########################################################"
+echo "# Check if we see the camera. If yes take a webcam picture"
+echo "##########################################################"
+WCAMCHECK=`vcgencmd get_camera`
+WCAMFILE="/tmp/raspicam-check.jpg"
+
 echo "sensortest.sh: Camera detection result: $WCAMCHECK"
 
 if [ "$WCAMCHECK" == "supported=1 detected=1" ]; then
-   raspistill -w 640 -h 480 -q 80 -o $WHOME/var/raspicam.jpg
-   WCAMFILE=`ls -l $WHOME/var/raspicam.jpg`
-   echo "sensortest.sh: Created new webcam image:"
-   echo $WCAMFILE
+   echo "sensortest.sh: Creating new webcam test image $WCAMFILE"
+   raspistill -w 640 -h 480 -q 80 -o /tmp/raspicam-check.jpg
 else
    echo "sensortest.sh: Could not find camera: $WCAMCHECK"
    echo "sensortest.sh: pi-weather can operate without it."
+fi
+
+if [ -s $WCAMFILE ]; then
+  WCAMSIZE=$(wc -c <"$WCAMFILE")
+  echo "sensortest.sh: Webcam test image created, size: $WCAMSIZE bytes."
+else
+  echo "sensortest.sh: Error webcam test image does not exist, or is empty."
 fi
 
 echo "##########################################################"

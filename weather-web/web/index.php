@@ -89,7 +89,7 @@ To see individual station data, graphs and details, please klick on the station 
       $sensorts = filemtime("$station/getsensor.htm");  // get file modification time
       $dt = new DateTime();                             // create new Date object
       $dt->setTimestamp($sensorts);                     // set Date object to tstamp
-      $output = "Last Station update received at ";
+      $output = "Last Station update received ";
       $output = $output.$dt->format('l F j Y, H:i:s T'); // format output string
     }
     else $ouptut = "Could not read last update time from $station/getsensor.htm";
