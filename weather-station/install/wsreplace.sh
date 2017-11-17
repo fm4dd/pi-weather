@@ -229,14 +229,14 @@ if [ -f ../backup/mv-$NEWWS/ssh/authorized_keys2 ]; then
 fi
 
 if [ ! -f /home/pi/.ssh/known_hosts ]; then
-   echo "Could not find a hoskey file in .ssh, creating it"
+   echo "Could not find a hostkey file in .ssh, creating it"
    echo "touch /home/pi/.ssh/known_hosts"
    touch /home/pi/.ssh/known_hosts
    echo "chmod 600 /home/pi/.ssh/known_hosts"
    chmod 600 /home/pi/.ssh/known_hosts
 fi
 
-echo "Ansure we got the hostkey entry, otherwise sftp fails"
+echo "Ensure we got the hostkey entry, otherwise sftp fails"
 echo "sftp -o StrictHostKeychecking=no$NEWWS@weather.fm4dd.com <<EOT"
 sftp -o StrictHostKeychecking=no $NEWWS@weather.fm4dd.com <<EOT
 quit
