@@ -47,10 +47,10 @@ readconfig() {
 GLOBALCONFIG="$SCRIPTPATH/../etc/pi-web.conf"
 
 if [[ ! -f $GLOBALCONFIG ]]; then
-  echo "rrdupdate.sh: Error - cannot find config file [$GLOBALCONFIG]" >&2
+  echo "Error - cannot find config file [$GLOBALCONFIG]" >&2
   exit 1
 fi
-echo "rrdupdate.sh: Using global cfg [$GLOBALCONFIG]"
+echo "Using global cfg [$GLOBALCONFIG]"
 readconfig GLOBALCFG < "$GLOBALCONFIG"
 
 DAYTCALC="${GLOBALCFG[pi-web-data]}/bin/daytcalc"
@@ -61,15 +61,15 @@ RRDTOOL="/usr/bin/rrdtool"
 # Check for the station argument, and test if it exists
 ##########################################################
 if [ $# -eq 0 ]; then
-    echo "rrdupdate.sh: Error - No station argument supplied"
+    echo "Error - No station argument supplied"
    exit 1
 fi
 
 if [[ $1 =~ ^pi-ws[0-9]{2}$ ]]; then
-   echo "rrdupdate.sh: Process station [$1]"
+   echo "Process station [$1]"
    STATION=$1
 else
-   echo "rrdupdate.sh: Error - wrong station format, expecting pi-wsXX"
+   echo "Error - wrong station format, expecting pi-wsXX"
    exit 1
 fi
 
@@ -79,11 +79,11 @@ fi
 LOCALCONFIG="${GLOBALCFG[pi-web-data]}/chroot/$STATION/etc/$STATION.conf"
 
 if [[ ! -f $LOCALCONFIG ]]; then
-  echo "rrdupdate.sh: Error - cannot find config file [$LOCALCONFIG]" >&2
+  echo "Error - cannot find config file [$LOCALCONFIG]" >&2
   exit 1
 fi
 
-echo "rrdupdate.sh: Using local cfg [$LOCALCONFIG]"
+echo "Using local cfg [$LOCALCONFIG]"
 readconfig LOCALCFG < "$LOCALCONFIG"
 
 LOGPATH="${GLOBALCFG[pi-web-data]}/chroot/$STATION/log"
@@ -94,7 +94,7 @@ VARPATH="${GLOBALCFG[pi-web-data]}/chroot/$STATION/var"
 ##########################################################
 eval TZ=${LOCALCFG[pi-weather-tzs]}
 export TZ
-echo "rrdupdate.sh: Using timezone [$TZ]"
+echo "Using timezone [$TZ]"
 
 ##########################################################
 # Check for sensor data file, exit if it doesn't
@@ -102,11 +102,11 @@ echo "rrdupdate.sh: Using timezone [$TZ]"
 SENSORFILE="$VARPATH/sensor.txt"
 
 if [[ ! -f $SENSORFILE ]]; then
-   echo "rrdupdate.sh: Error cannot find [$SENSORFILE]"
+   echo "Error cannot find [$SENSORFILE]"
    exit 1
 fi
 
-echo "rrdupdate.sh: Using [$SENSORFILE]"
+echo "Using [$SENSORFILE]"
 
 ##########################################################
 # Check if RRD database exists, exit if it doesn't
@@ -114,21 +114,21 @@ echo "rrdupdate.sh: Using [$SENSORFILE]"
 RRD="${GLOBALCFG[pi-web-data]}/chroot/$STATION/rrd/$STATION.rrd"
 
 if [[ ! -e $RRD ]]; then
-   echo "rrdupdate.sh: Error cannot find [$RRD]"
+   echo "Error cannot find [$RRD]"
    exit 1
 fi
 
-echo "rrdupdate.sh: Using [$RRD]"
+echo "Using [$RRD]"
 
 ##########################################################
 # Get Sensor data timestamp
 ##########################################################
 SENSORDATA=`cat $SENSORFILE`
-echo "rrdupdate.sh: Sensordata [$SENSORDATA]"
+echo "Sensordata [$SENSORDATA]"
 
 TIME=`echo $SENSORDATA | cut -d " " -f 1`
 if [ "$TIME" == "" ] || [ "$TIME" == "Error" ]; then
-  echo "rrdupdate.sh: Error getting timestamp from sensor data"
+  echo "Error getting timestamp from sensor data"
   exit
 fi
 
@@ -137,10 +137,10 @@ fi
 ##########################################################
 OLDTIME=`$RRDTOOL last $RRD`
 if [ "$TIME" = "$OLDTIME" ]; then
-  echo "rrdupdate.sh: Error no new sensor data: last update from: `date -d @$TIME`"
+  echo "Error no new sensor data: last update from: `date -d @$TIME`"
   exit
 else
-  echo "rrdupdate.sh: Timestamp [$TIME] = `date -d @$TIME`"
+  echo "Timestamp [$TIME] = `date -d @$TIME`"
 fi
 
 ##########################################################
@@ -151,7 +151,7 @@ RESYNCTAG="$LOGPATH/resync.tag"
 
 let TDIFF=$TIME-$OLDTIME
 if [ $TDIFF -gt 90 ]; then
-  echo "rrdupdate.sh: Recovered from approx. $TDIFF seconds network outage."
+  echo "Recovered from approx. $TDIFF seconds network outage."
   echo "`date`: Recovered from approx. $TDIFF seconds network outage." >> $OUTAGELOG
   touch $RESYNCTAG
 fi
@@ -161,7 +161,7 @@ fi
 ##########################################################
 TEMP=`echo $SENSORDATA | cut -d " " -f 2 | cut -c 6- | cut -d "*" -f 1`
 if [ "$TEMP" == "" ]; then
-  echo "rrdupdate.sh: Error getting temperature from sensor.txt"
+  echo "Error getting temperature from sensor.txt"
   exit
 fi
 
@@ -171,10 +171,10 @@ fi
 LIMIT=5
 $OUTLIER -s $RRD -d temp -n $TEMP -p $LIMIT
 if [ $? == 1 ]; then
-  echo "[$SENSORDATA] -> temperature outlier detected [$TEMP]." >> $LOGPATH/outlier.log
-  echo "rrdupdate.sh: Error temperature [$TEMP] is a outlier."
+  echo "`date -R` [$SENSORDATA] -> temperature outlier [$TEMP]." >> $LOGPATH/outlier.log
+  echo "Error temperature [$TEMP] is a outlier."
 else
-  echo "rrdupdate.sh: Temperature [$TEMP] outlier detection OK."
+  echo "Temperature [$TEMP] outlier detection OK."
 fi
 
 ##########################################################
@@ -182,7 +182,7 @@ fi
 ##########################################################
 HUMI=`echo $SENSORDATA | cut -d " " -f 3 | cut -c 10- | cut -d "%" -f 1`
 if [ "$HUMI" == "" ]; then
-  echo "rrdupdate.sh: Error getting humidity from sensor.txt"
+  echo "Error getting humidity from sensor.txt"
   exit
 fi
 
@@ -192,10 +192,10 @@ fi
 LIMIT=15
 $OUTLIER -s $RRD -d humi -n $HUMI -p $LIMIT
 if [ $? == 1 ]; then
-  echo "[$SENSORDATA] -> humidity outlier detected [$HUMI]." >> $LOGPATH/outlier.log
-  echo "rrdupdate.sh: Error humidity [$HUMI] is a outlier."
+  echo "`date -R` [$SENSORDATA] -> humidity outlier [$HUMI]." >> $LOGPATH/outlier.log
+  echo "Error humidity [$HUMI] is a outlier."
 else
-  echo "rrdupdate.sh: Humidity [$HUMI] outlier detection OK."
+  echo "Humidity [$HUMI] outlier detection OK."
 fi
 
 ##########################################################
@@ -203,7 +203,7 @@ fi
 ##########################################################
 BMPR=`echo $SENSORDATA | cut -d " " -f 4 | cut -c 10- | cut -d "P" -f 1`
 if [ "$BMPR" == "" ]; then
-  echo "rrdupdate.sh: Error getting pressure from sensor.txt"
+  echo "Error getting pressure from sensor.txt"
   exit
 fi
 
@@ -213,10 +213,10 @@ fi
 LIMIT=12000
 $OUTLIER -s $RRD -d bmpr -n $BMPR -p $LIMIT
 if [ $? == 1 ]; then
-  echo "[$SENSORDATA] -> pressure outlier detected [$BMPR]." >> $LOGPATH/outlier.log
-  echo "rrdupdate.sh: Error pressure [$BMPR] is a outlier."
+  echo "`date -R` [$SENSORDATA] -> pressure outlier [$BMPR]." >> $LOGPATH/outlier.log
+  echo "Error pressure [$BMPR] is a outlier."
 else
-  echo "rrdupdate.sh: Pressure [$BMPR] outlier detection OK."
+  echo "Pressure [$BMPR] outlier detection OK."
 fi
 
 ##########################################################
@@ -227,22 +227,22 @@ LON="${LOCALCFG[pi-weather-lon]}"
 LAT="${LOCALCFG[pi-weather-lat]}"
 DAYTIME=('day' 'night');
 
-echo "rrdupdate.sh: $DAYTCALC -t $TIME -x $LON -y $LAT -s $TZ"
+echo "$DAYTCALC -t $TIME -x $LON -y $LAT -s $TZ"
 `$DAYTCALC -t $TIME -x $LON -y $LAT -s $TZ`
 
 DAYT=$?
 if [ "$DAYT" == "" ]; then
-  echo "rrdupdate.sh: Error getting daytime information, setting 0."
+  echo "Error getting daytime information, setting 0."
   DAYT=0
 else
-  echo "rrdupdate.sh: daytcalc $TIME returned [$DAYT] [${DAYTIME[$DAYT]}]."
+  echo "daytcalc $TIME returned [$DAYT] [${DAYTIME[$DAYT]}]."
 fi
 
 ##########################################################
 # Import any sensor-send database XML file before updates
 ##########################################################
 if [ -f $VARPATH/rrdcopy.xml.gz ]; then
-   echo "rrdupdate.sh: Found sensor RRD XML export file, restoring DB."
+   echo "Found sensor RRD XML export file, restoring DB."
    gunzip $VARPATH/rrdcopy.xml.gz
    mv $RRD $RRD.orig
    $RRDTOOL restore $VARPATH/rrdcopy.xml $RRD
@@ -284,10 +284,10 @@ RDATSRC="$VARPATH/raspidat.htm"
 RDATDST="$WEBPATH/raspidat.htm"
 
 if [ -f $RDATSRC ]; then
-   echo "rrdupdate.sh: cp $RDATSRC $RDATDST"
+   echo "cp $RDATSRC $RDATDST"
    cp $RDATSRC $RDATDST
 else
-   echo "rrdupdate.sh: Error cannot find $RDATSRC"
+   echo "Error cannot find $RDATSRC"
 fi
 
 ##########################################################
@@ -298,10 +298,10 @@ WCAMSRC="$VARPATH/raspicam.jpg"
 WCAMDST="$IMGPATH/raspicam.jpg"
 
 if [ -f $WCAMSRC ]; then
-   echo "rrdupdate.sh: cp $WCAMSRC $WCAMDST"
+   echo "cp $WCAMSRC $WCAMDST"
    cp $WCAMSRC $WCAMDST
 else
-   echo "rrdupdate.sh: Error cannot find $WCAMSRC"
+   echo "Error cannot find $WCAMSRC"
 fi
 
 ##########################################################
@@ -311,7 +311,7 @@ TEMPPNG="$IMGPATH/daily_temp.png"
 HUMIPNG="$IMGPATH/daily_humi.png"
 BMPRPNG="$IMGPATH/daily_bmpr.png"
 
-echo -n "rrdupdate.sh: Creating image $TEMPPNG... "
+echo -n "Creating image $TEMPPNG... "
 
 $RRDTOOL graph $TEMPPNG -a PNG \
   --start -16h \
@@ -331,7 +331,7 @@ $RRDTOOL graph $TEMPPNG -a PNG \
   'GPRINT:temp1:MAX:Max\: %3.2lf' \
   'GPRINT:temp1:LAST:Last\: %3.2lf'
 
-echo -n "rrdupdate.sh: Creating image $HUMIPNG... "
+echo -n "Creating image $HUMIPNG... "
 
 $RRDTOOL graph $HUMIPNG -a PNG \
   --start -16h \
@@ -353,7 +353,7 @@ $RRDTOOL graph $HUMIPNG -a PNG \
   'GPRINT:humi1:MAX:Max\: %3.2lf' \
   'GPRINT:humi1:LAST:Last\: %3.2lf'
 
-echo -n "rrdupdate.sh: Creating image $BMPRPNG... "
+echo -n "Creating image $BMPRPNG... "
 
 $RRDTOOL graph $BMPRPNG -a PNG \
   --start -16h \
@@ -391,7 +391,7 @@ MBMPRPNG=$IMGPATH/monthly_bmpr.png
 midnight=$(date -d "00:00" +%s)
 if [ -f $MTEMPPNG ]; then FILEAGE=$(date -r $MTEMPPNG +%s); fi
 if [ ! -f $MTEMPPNG ] || [[ "$FILEAGE" < "$midnight" ]] || [ -v REPROCESS ]; then
-  echo -n "rrdupdate.sh: Creating image $MTEMPPNG... "
+  echo -n "Creating image $MTEMPPNG... "
 
   # --------------------------------------- #
   # --x-grid defines the x-axis spacing.    #
@@ -422,7 +422,7 @@ fi
 ##########################################################
 if [ -f $MHUMIPNG ]; then FILEAGE=$(date -r $MHUMIPNG +%s); fi
 if [ ! -f $MHUMIPNG ] || [[ "$FILEAGE" < "$midnight" ]] || [ -v REPROCESS ]; then
-  echo -n "rrdupdate.sh: Creating image $MHUMIPNG... "
+  echo -n "Creating image $MHUMIPNG... "
 
   $RRDTOOL graph $MHUMIPNG -a PNG \
   --start end-21d --end 00:00 \
@@ -448,7 +448,7 @@ fi
 ##########################################################
 if [ -f $MBMPRPNG ]; then FILEAGE=$(date -r $MBMPRPNG +%s); fi
 if [ ! -f $MBMPRPNG ] || [[ "$FILEAGE" < "$midnight" ]] || [ -v REPROCESS ]; then
-  echo -n "rrdupdate.sh: Creating image $MBMPRPNG... "
+  echo -n "Creating image $MBMPRPNG... "
 
   $RRDTOOL graph $MBMPRPNG -a PNG \
   --start end-21d --end 00:00 \
@@ -483,7 +483,7 @@ YBMPRPNG=$IMGPATH/yearly_bmpr.png
 ##########################################################
 if [ -f $YTEMPPNG ]; then FILEAGE=$(date -r $YTEMPPNG +%s); fi
 if [ ! -f $YTEMPPNG ] || [[ "$FILEAGE" < "$midnight" ]] || [ -v REPROCESS ]; then
-  echo -n "rrdupdate.sh: Creating image $YTEMPPNG... "
+  echo -n "Creating image $YTEMPPNG... "
 
   $RRDTOOL graph $YTEMPPNG -a PNG \
   --start end-18mon --end 00:00 \
@@ -535,7 +535,7 @@ fi
 ##########################################################
 if [ -f $YBMPRPNG ]; then FILEAGE=$(date -r $YBMPRPNG +%s); fi
 if [ ! -f $YBMPRPNG ] || [[ "$FILEAGE" < "$midnight" ]] || [ -v REPROCESS ]; then
-  echo -n "rrdupdate.sh: Creating image $YBMPRPNG... "
+  echo -n "Creating image $YBMPRPNG... "
 
   $RRDTOOL graph $YBMPRPNG -a PNG \
   --start end-18mon --end 00:00 \
@@ -571,7 +571,7 @@ TWYBMPRPNG=$IMGPATH/twyear_bmpr.png
 ##########################################################
 if [ -f $TWYTEMPPNG ]; then FILEAGE=$(date -r $TWYTEMPPNG +%s); fi
 if [ ! -f $TWYTEMPPNG ] || [[ "$FILEAGE" < "$midnight" ]] || [ -v REPROCESS ]; then
-  echo -n "rrdupdate.sh: Creating image $TWYTEMPPNG... "
+  echo -n "Creating image $TWYTEMPPNG... "
 
   $RRDTOOL graph $TWYTEMPPNG -a PNG \
   --start end-18years --end 00:00 \
@@ -596,7 +596,7 @@ fi
 ##########################################################
 if [ -f $TWYHUMIPNG ]; then FILEAGE=$(date -r $TWYHUMIPNG +%s); fi
 if [ ! -f $TWYHUMIPNG ] || [[ "$FILEAGE" < "$midnight" ]] || [ -v REPROCESS ]; then
-  echo -n "rrdupdate.sh: Creating image $TWYHUMIPNG... "
+  echo -n "Creating image $TWYHUMIPNG... "
 
   $RRDTOOL graph $TWYHUMIPNG -a PNG \
   --start end-18years --end 00:00 \
@@ -623,7 +623,7 @@ fi
 ##########################################################
 if [ -f $TWYBMPRPNG ]; then FILEAGE=$(date -r $TWYBMPRPNG +%s); fi
 if [ ! -f $TWYBMPRPNG ] || [[ "$FILEAGE" < "$midnight" ]] || [ -v REPROCESS ]; then
-  echo -n "rrdupdate.sh: Creating image $TWYBMPRPNG... "
+  echo -n "Creating image $TWYBMPRPNG... "
 
   $RRDTOOL graph $TWYBMPRPNG -a PNG \
   --start end-18years --end 00:00 \
@@ -655,7 +655,7 @@ MONHTMAGE=0
 MONSRCAGE=0
 
 if [ ! -f $MONHTMFILE ] && [ -f $MONSRCFILE ]; then
-  echo -n "rrdupdate.sh: Creating  $MONHTMFILE... "
+  echo -n "Creating  $MONHTMFILE... "
   cp $MONSRCFILE $MONHTMFILE
   echo " Done."
 fi
@@ -664,7 +664,7 @@ if [ -f $MONHTMFILE ]; then MONHTMAGE=$(date -r $MONHTMFILE +%s); fi
 if [ -f $MONSRCFILE ]; then MONSRCAGE=$(date -r $MONSRCFILE +%s); fi
 
 if [ -f $MONHTMFILE ] && [ -f $MONSRCFILE ] && [ $MONSRCAGE -gt $MONHTMAGE ]; then
-  echo -n "rrdupdate.sh: Updating  $MONHTMFILE... "
+  echo -n "Updating  $MONHTMFILE... "
   cp $MONSRCFILE $MONHTMFILE
   echo " Done."
 fi
@@ -678,7 +678,7 @@ DAYSRCAGE=0
 DAYHTMAGE=0
 
 if [ ! -f $DAYHTMFILE ] && [ -f $DAYSRCFILE ]; then
-  echo -n "rrdupdate.sh: Creating  $DAYHTMFILE... "
+  echo -n "Creating  $DAYHTMFILE... "
   cp $DAYSRCFILE $DAYHTMFILE
   echo " Done."
 fi
@@ -687,7 +687,7 @@ if [ -f $DAYHTMFILE ]; then DAYHTMAGE=$(date -r $DAYHTMFILE +%s); fi
 if [ -f $DAYSRCFILE ]; then DAYSRCAGE=$(date -r $DAYSRCFILE +%s); fi
 
 if [ -f $DAYHTMFILE ] && [ -f $DAYSRCFILE ] && [ $DAYSRCAGE -gt $DAYHTMAGE ]; then
-  echo -n "rrdupdate.sh: Updating  $DAYHTMFILE... "
+  echo -n "Updating  $DAYHTMFILE... "
   cp $DAYSRCFILE $DAYHTMFILE
   echo " Done."
 fi
@@ -700,7 +700,7 @@ DAYTIMEFILE=$WEBPATH/daytime.htm
 if [ -f $DAYTIMEFILE ]; then FILEAGE=$(date -r $DAYTIMEFILE +%s); fi
 if [ ! -f $DAYTIMEFILE ] || [[ "$FILEAGE" < "$midnight" ]]; then
   NOW=`date +%s`
-  echo "rrdupdate.sh: Creating  $DAYTIMEFILE"
+  echo "Creating  $DAYTIMEFILE"
   echo "$DAYTCALC -t $NOW -x $LON -y $LAT -s $TZ -f > $DAYTIMEFILE"
   `$DAYTCALC -t $NOW -x $LON -y $LAT -s $TZ -f > $DAYTIMEFILE`
 fi
@@ -709,9 +709,9 @@ fi
 # Process the daily timelapse movie
 ##########################################################
  if [ -f $VARPATH/yesterday.mp4 ]; then
-    echo "rrdupdate.sh: Found yesterdays timelapse movie."
+    echo "Found yesterdays timelapse movie."
 
-    echo "rrdupdate.sh: Rotating the history of link pictures."
+    echo "Rotating the history of link pictures."
     if [ -f $IMGPATH/wcam6.png ]; then rm $IMGPATH/wcam6.png; fi
     if [ -f $IMGPATH/wcam5.png ]; then mv $IMGPATH/wcam5.png $IMGPATH/wcam6.png; fi
     if [ -f $IMGPATH/wcam4.png ]; then mv $IMGPATH/wcam4.png $IMGPATH/wcam5.png; fi
@@ -719,12 +719,12 @@ fi
     if [ -f $IMGPATH/wcam2.png ]; then mv $IMGPATH/wcam2.png $IMGPATH/wcam3.png; fi
     if [ -f $IMGPATH/wcam1.png ]; then mv $IMGPATH/wcam1.png $IMGPATH/wcam2.png; fi
 
-    echo "rrdupdate.sh: Extracting icon picture from yesterday.mp4."
+    echo "Extracting icon picture from yesterday.mp4."
     avconv -i $VARPATH/yesterday.mp4 -ss 00:00:15 -s 90x68 -vframes 1 -f image2 $IMGPATH/wcam1.png
     # timestamp image file to yesterday to let the webpage display correct date/day
     touch -t "$(date --date="-1 day" +"%Y%m%d2100")" $IMGPATH/wcam1.png
 
-    echo "rrdupdate.sh: Rotating the history of timelapse movies."
+    echo "Rotating the history of timelapse movies."
     if [ -f $IMGPATH/wcam6.mp4 ]; then rm $IMGPATH/wcam6.mp4; fi
     if [ -f $IMGPATH/wcam5.mp4 ]; then mv $IMGPATH/wcam5.mp4 $IMGPATH/wcam6.mp4; fi
     if [ -f $IMGPATH/wcam4.mp4 ]; then mv $IMGPATH/wcam4.mp4 $IMGPATH/wcam5.mp4; fi
@@ -735,7 +735,7 @@ fi
     touch -t "$(date --date="-1 day" +"%Y%m%d2100")" $IMGPATH/wcam1.mp4
 fi
 unset TZ
-echo "rrdupdate.sh: end of script at `date`"
+echo "rrdupdate.sh: End of script at `date`"
 ##########################################################
 # End of rrdupdate.sh
 ##########################################################
