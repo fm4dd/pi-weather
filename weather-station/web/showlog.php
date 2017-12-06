@@ -64,7 +64,7 @@
   $tstamp = filemtime($filename);       // get file modification time
   $ft = new DateTime();                             // create new Date object
   $ft->setTimeStamp($tstamp);                       // set Date object to tstamp
-  $output = "File ".basename($filename)." content, last update ".$ft->format('l F j Y,  H:i:s');  
+  $output = "File ".basename($filename).", last update ".$ft->format('l F j Y,  H:i:s');  
   echo "<h3>$output</h3>\n";
   echo "<hr />\n";
 

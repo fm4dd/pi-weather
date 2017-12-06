@@ -119,15 +119,29 @@ echo "# 5. On a Raspberry Pi 3, we underclock 1.2 GHz to 900 MHz"
 echo "##########################################################"
 
 PI3=0
-GREP=`grep BCM2709 /proc/cpuinfo`
-
-if [[ $? == 0 ]]; then
-   echo "Detected CPU type BCM2709 in /proc/cpuinfo:"
-   echo "$GREP"
-   PI3=1
+revision="$(sed -n '/^Revision/s/^.*: \(.*\)/\1/p' < /proc/cpuinfo)"
+if [[ $(((0x$revision >> 23) & 1)) -eq 0 ]]; then
+   platform="rpi1"
 else
-   echo "Could not find CPU type BCM2709 in /proc/cpuinfo:"
-   echo "$GREP"
+   cpu=$(((0x$revision >> 12) & 15))
+   case $cpu in
+      0)
+         platform="rpi1"
+         ;;
+      1)
+         platform="rpi2"
+         ;;
+      2)
+         platform="rpi3"
+         PI3=1
+         ;;
+   esac
+fi
+
+if [[ $platform ]]; then
+   echo "Detected Raspberry type: $platform"
+else
+   echo "Could not detect Raspberry system type"
 fi
 echo
 
