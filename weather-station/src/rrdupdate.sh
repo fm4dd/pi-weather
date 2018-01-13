@@ -196,6 +196,8 @@ $RRDTOOL graph $TEMPPNG -a PNG \
   DEF:dayt1=$RRD:dayt:AVERAGE \
   'CDEF:dayt2=dayt1,0,GT,INF,UNKN,IF' \
   'AREA:dayt2#cfcfcf' \
+  'CDEF:tneg1=dayt1,0,GT,NEGINF,UNKN,IF' \
+  'AREA:tneg1#cfcfcf' \
   'AREA:temp1#99001F:Temperature in °C' \
   'GPRINT:temp1:MIN:Min\: %3.2lf' \
   'GPRINT:temp1:MAX:Max\: %3.2lf' \

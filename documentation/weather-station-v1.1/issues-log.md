@@ -37,3 +37,25 @@ For example:
 `RRA:MIN:0.5:60:17568 RRA:MAX:0.5:60:17568` uses existing default UTC-based consolidation
 
 `RRA:MIN:0.5:60:17568 RRA:MAX:0.5:60:17568:Asia/Tokyo` adding new option to specify a time zone, letting RRD calculate the offset to consolidate at local midnight instead of UTC.
+
+## 2. RRD graphs nightime background does not extend below zero if temperature becomes negative
+
+I currently color the nighttime with a grey background, using the following expression:
+
+<pre>  DEF:dayt1=$RRD:dayt:AVERAGE \
+  'CDEF:dayt2=dayt1,0,GT,INF,UNKN,IF' \
+  'AREA:dayt2#cfcfcf' \</pre>
+
+The RRD value dayt stores the info about night (set to '1'), and day ('0'). If its 1, the area is shaded to grey (#cfcfcf)i towards infinity (INF). It works great in summer, but wintertime brings temperatures below zero. The nighttime coloring continues to work, but starts at zero, leaving the area with the negative temperature at default white background.
+
+Solution: Add a second area, stacked on top of the first, which adds below-zero coloring against negative infinity (NEGINF). 
+
+<pre>  DEF:dayt1=$RRD:dayt:AVERAGE \
+  'CDEF:dayt2=dayt1,0,GT,INF,UNKN,IF' \
+  'AREA:dayt2#cfcfcf' \
+  'CDEF:tneg1=dayt1,0,GT,NEGINF,UNKN,IF' \
+  'AREA:tneg1#cfcfcf' \</pre>
+
+Note 1: A conditional execution, e.g. shade second area only if temp < 0 is not needed, would complicate code without benefit.
+
+Note 2: Initially I thought I would need 'AREA:tneg1#cfcfcf:STACK' to add onto the first area. This created problems because I got a legend entry for STACK. According to rrdtool documentation it should be 'AREA:tneg1#cfcfcf::STACK' with an extra colon, but that broke the second area which did not show at all. I just left it out, and that worked.
