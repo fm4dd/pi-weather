@@ -38,7 +38,7 @@ For example:
 
 `RRA:MIN:0.5:60:17568 RRA:MAX:0.5:60:17568:Asia/Tokyo` adding new option to specify a time zone, letting RRD calculate the offset to consolidate at local midnight instead of UTC.
 
-## 2. RRD graphs nightime background does not extend below zero if temperature becomes negative
+## 2. RRD graphs nighttime background does not extend below zero if temperature becomes negative
 
 I currently color the nighttime with a grey background, using the following expression:
 
@@ -46,7 +46,7 @@ I currently color the nighttime with a grey background, using the following expr
   'CDEF:dayt2=dayt1,0,GT,INF,UNKN,IF' \
   'AREA:dayt2#cfcfcf' \</pre>
 
-The RRD value dayt stores the info about night (set to '1'), and day ('0'). If its 1, the area is shaded to grey (#cfcfcf)i towards infinity (INF). It works great in summer, but wintertime brings temperatures below zero. The nighttime coloring continues to work, but starts at zero, leaving the area with the negative temperature at default white background.
+The RRD value dayt stores the info about night (set to '1'), and day ('0'). If its 1, the area is shaded to grey (#cfcfcf) towards infinity (INF). It works great in summer, but wintertime brings temperatures below zero. The nighttime coloring continues to work, but starts at zero, leaving the area with the negative temperature at default white background.
 
 Solution: Add a second area, stacked on top of the first, which adds below-zero coloring against negative infinity (NEGINF). 
 
