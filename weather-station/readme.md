@@ -41,7 +41,7 @@ Device                               Boot Start     End Sectors  Size Id Type
 - Mount the Linux partition by calculating its offset
 
 ```
-root@linvm:~ # mount 2017-04-10-raspbian-jessie-lite.img -o loop,offset=$(( 512 * 92160)) /mnt
+root@linvm:~ # mount 2017-04-10-raspbian-jessie-lite.img -o loop,offset=$((512 * 92160)) /mnt
 root@linvm:~ # ls /mnt/
 ```
 
@@ -54,10 +54,16 @@ vi /mnt/etc/hosts
 vi /mnt/etc/hostname
 vi /mnt/etc/rsyslog.conf
 vi /mnt/etc/modprobe.d/bcm2835_gpiomem.conf
+ln -s /etc/init.d/ssh /etc/rc3.d/S02ssh
+ln -s /etc/init.d/ssh /etc/rc5.d/S02ssh (or manually create a empty file called "ssh" in the boot partition of the SD card).
 umount /mnt
 ```
 
+Latest version of Rasbian was updated to Debian 9 Stretch, and works. It required only two package name updates (librrd4->librrd8, php5-cgi->php-cgi).
+
 ## Software Installation
+
+After first boot, run raspi-config to enable the I2C-bus and camera, configure timezone. Download the weather-station SW package (git or manual .gtgz package download).
 
 First, create or update the configuration file `pi-weather.conf` in the `etc` directory. The following settings are minimum to be configured:
 

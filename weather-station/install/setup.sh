@@ -98,7 +98,7 @@ echo
 echo "##########################################################"
 echo "# 5. Install the RRD database tools and development files"
 echo "##########################################################"
-APPLIST="rrdtool librrd4 librrd-dev"
+APPLIST="rrdtool librrd8 librrd-dev"
 EXECUTE="sudo apt-get install $APPLIST -y -q"
 echo "Getting SW packages [$APPLIST]. Please wait ..."
 $EXECUTE
@@ -126,9 +126,9 @@ echo "Done."
 echo
 
 echo "##########################################################"
-echo "# 7. Install webserver: lighttpd, lighttpd-doc, php5-cgi"
+echo "# 7. Install webserver: lighttpd, lighttpd-doc, php-cgi"
 echo "##########################################################"
-APPLIST="lighttpd lighttpd-doc php5-cgi"
+APPLIST="lighttpd lighttpd-doc php-cgi"
 EXECUTE="sudo apt-get install $APPLIST -y -q"
 echo "Getting SW packages [$APPLIST]. Please wait ..."
 $EXECUTE
@@ -472,6 +472,11 @@ echo "cp ../web/index.php $HOMEDIR/web"
 cp ../web/index.php $HOMEDIR/web
 echo "chmod 644 $HOMEDIR/web/index.php"
 chmod 644 $HOMEDIR/web/index.php
+
+echo "cp ../web/showlog.php $HOMEDIR/web"
+cp ../web/showlog.php $HOMEDIR/web
+echo "chmod 644 $HOMEDIR/web/showlog.php"
+chmod 644 $HOMEDIR/web/showlog.php
 
 echo "creating $HOMEDIR/web/phpinfo.php"
 echo "<?php phpinfo(); ?>" >  $HOMEDIR/web/phpinfo.php
