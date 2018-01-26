@@ -263,7 +263,7 @@ void day_headhtml(time_t tsnow){
 }
 
 void day_datahtml(time_t tsnow) {
-   unsigned long step = 60;
+   unsigned long step = 3600;
    /* ------------------------------------------------------------- *
     *  Create the data row for min max values to display            *
     * ------------------------------------------------------------- */
@@ -332,6 +332,8 @@ void day_datahtml(time_t tsnow) {
       if(j==24) {
          k++; j=0;
 
+         if(verbose == 1) printf("Debug: day [%2d] %s min [%.2f] max [%.2f]\n",
+                               k-1, ds_namv[0], daymin, daymax);
          /* print the max values before processing the next day */
          if(daymax != -1000) fprintf(html, "   <td class=\"datacell\">%.1f&deg;C", daymax);
          else  fprintf(html, "   <td class=\"emptycell\">N/A");
