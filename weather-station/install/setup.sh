@@ -534,8 +534,10 @@ cat <<EOM >$HOMEDIR/etc/sftp-htm.bat
 cd var
 put $HOMEDIR/var/daymimax.htm daymimax.htm.tmp
 put $HOMEDIR/var/momimax.htm momimax.htm.tmp
+put $HOMEDIR/var/yearmimax.htm yearmimax.htm.tmp
 rename daymimax.htm.tmp daymimax.htm
 rename momimax.htm.tmp momimax.htm
+rename yearmimax.htm.tmp yearmimax.htm
 quit
 EOM
 

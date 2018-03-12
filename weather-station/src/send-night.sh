@@ -88,24 +88,32 @@ fi
 ##########################################################
 # Upload the daily daymimax/momimax.htm tables to server
 ##########################################################
+if [ ! -f $WHOME/var/yearmimax.htm ]; then
+   $WHOME/bin/momimax -s $WHOME/rrd/weather.rrd -y $WHOME/var/yearmimax.htm
+   echo "`date`: Created $WHOME/var/yearmimax.htm"
+fi
+
 if [ ! -f $WHOME/var/momimax.htm ]; then
    $WHOME/bin/momimax -s $WHOME/rrd/weather.rrd -m $WHOME/var/momimax.htm
-   echo "`date`: Created WHOME/var/momimax.htm"
+   echo "`date`: Created $WHOME/var/momimax.htm"
 fi
 
 if [ ! -f $WHOME/var/daymimax.htm ]; then
    $WHOME/bin/momimax -s $WHOME/rrd/weather.rrd -d $WHOME/var/daymimax.htm
-   echo "`date`: Created WHOME/var/daymimax.htm"
+   echo "`date`: Created $WHOME/var/daymimax.htm"
 fi
 
-if [ -f $WHOME/var/daymimax.htm ] || [ -f $WHOME/var/momimax.htm ]; then
-   echo "`date`: Uploading daymimax/momimax to $SFTPDEST"
+if [ -f $WHOME/var/daymimax.htm ]
+   || [ -f $WHOME/var/momimax.htm ]
+   || [ -f $WHOME/var/yearmimax.htm ]; then
+   echo "`date`: Uploading daymimax/momimax/yearmimax to $SFTPDEST"
    /usr/bin/sftp -b $WHOME/etc/sftp-htm.bat $SFTPDEST
-   echo "`date`: Deleting daymimax/momimax.htm in $WHOME/var"
+   echo "`date`: Deleting daymimax/momimax/yearmimax.htm in $WHOME/var"
    rm $WHOME/var/daymimax.htm
    rm $WHOME/var/momimax.htm
+   rm $WHOME/var/yearmimax.htm
 else
-   echo "`date`: Can't find daymimax/momimax.htm in $WHOME/var"
+   echo "`date`: Can't find daymimax/momimax/yearmimax.htm in $WHOME/var"
 fi
 echo "send-night.sh: Finished `date`"
 ############# end of send-night.sh ########################
