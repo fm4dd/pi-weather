@@ -649,6 +649,29 @@ if [ ! -f $TWYBMPRPNG ] || [[ "$FILEAGE" < "$midnight" ]] || [ -v REPROCESS ]; t
 fi
 
 ##########################################################
+# Daily update of the yearly Min/Max Temperature htm file
+##########################################################
+YEARSRCFILE=$VARPATH/yearmimax.htm
+YEARHTMFILE=$WEBPATH/yearmimax.htm
+YEARHTMAGE=0
+YEARSRCAGE=0
+
+if [ ! -f $YEARHTMFILE ] && [ -f $YEARSRCFILE ]; then
+  echo -n "Creating  $YEARHTMFILE... "
+  cp $YEARSRCFILE $YEARHTMFILE
+  echo " Done."
+fi
+
+if [ -f $YEARHTMFILE ]; then YEARHTMAGE=$(date -r $YEARHTMFILE +%s); fi
+if [ -f $YEARSRCFILE ]; then YEARSRCAGE=$(date -r $YEARSRCFILE +%s); fi
+
+if [ -f $YEARHTMFILE ] && [ -f $YEARSRCFILE ] && [ $YEARSRCAGE -gt $YEARHTMAGE ]; then
+  echo -n "Updating  $YEARHTMFILE... "
+  cp $YEARSRCFILE $YEARHTMFILE
+  echo " Done."
+fi
+
+##########################################################
 # Daily update of the monthly Min/Max Temperature htm file
 ##########################################################
 MONSRCFILE=$VARPATH/momimax.htm

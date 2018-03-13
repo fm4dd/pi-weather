@@ -132,6 +132,7 @@ include("./daymimax.htm");
 <h3>Longterm View:</h3>
 <hr />
 <div class="showext" id="l_term" style="display: none;">
+<?php include("./yearmimax.htm"); ?>
 <div class="fullgraph"> <img src="images/twyear_temp.png" alt="Temperature Graph"> </div>
 <div class="fullgraph"> <img src="images/twyear_humi.png" alt="Humidity Graph"> </div>
 <div class="fullgraph"> <img src="images/twyear_bmpr.png" alt="Pressure Graph"> </div>

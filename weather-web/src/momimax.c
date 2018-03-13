@@ -46,9 +46,11 @@ void usage() {
    -s   RRD file and path, Example: -s /home/pi/pi-ws01/rrd/weather.rrd\n\
    -d   create the 12-day min/max temperature output, and write it into HTML file and path\n\
    -m   create the 12-month min/max temperature output, and write it into HTML file and path\n\
+   -y   create the 12-year min/max temperature output, and write it into HTML file and path\n\
    -h   optional, display this message\n\
    -v   optional, enables debug output\n\
    Usage examples:\n\
+./momimax -s /home/pi/pi-ws01/rrd/weather.rrd -y /home/pi/pi-ws01/web/yearmimax.htm\n\
 ./momimax -s /home/pi/pi-ws01/rrd/weather.rrd -m /home/pi/pi-ws01/web/momimax.htm\n\
 ./momimax -s /home/pi/pi-ws01/rrd/weather.rrd -d /home/pi/pi-ws01/web/daymimax.htm\n";
    printf(usage);
@@ -63,7 +65,7 @@ void parseargs(int argc, char* argv[]) {
 
    if(argc == 1) { usage(); exit(-1); }
 
-   while ((arg = (int) getopt (argc, argv, "s:d:m:vh")) != -1)
+   while ((arg = (int) getopt (argc, argv, "s:d:m:y:vh")) != -1)
       switch (arg) {
          // arg -s + source RRD file, type: string
          // mandatory, example: /opt/raspi/data/weather.rrd
@@ -73,7 +75,7 @@ void parseargs(int argc, char* argv[]) {
             break;
 
          // arg -d + dst HTML file, type: string
-         // either -d or -m is mandatory, example: /tmp/t1.htm
+         // either -d, -m or -y is mandatory, example: /tmp/t1.htm
          case 'd':
             outtype = 1;
             if(verbose == 1) printf("Debug: arg -d, value %s\n", optarg);
@@ -81,10 +83,18 @@ void parseargs(int argc, char* argv[]) {
             break;
 
          // arg -m + dst HTML file, type: string
-         // either -d or -m is mandatory, example: /tmp/t1.htm
+         // either -d, -m or -y is mandatory, example: /tmp/t1.htm
          case 'm':
             outtype = 2;
             if(verbose == 1) printf("Debug: arg -m, value %s\n", optarg);
+            strncpy(htmfile, optarg, sizeof(htmfile));
+            break;
+
+         // arg -y + dst HTML file, type: string
+         // either -d, -m or -y is mandatory, example: /tmp/t1.htm
+         case 'y':
+            outtype = 3;
+            if(verbose == 1) printf("Debug: arg -y, value %s\n", optarg);
             strncpy(htmfile, optarg, sizeof(htmfile));
             break;
 
@@ -117,6 +127,115 @@ void parseargs(int argc, char* argv[]) {
        printf("Error: Cannot get valid -d htm file argument.\n");
        exit(-1);
     }
+}
+
+void year_headhtml(int year){
+   fprintf(html, "<tr><td colspan=12 class=\"monthhead\">Yearly Maximum Minimum Temperatures</td></tr>\n");
+   fprintf(html, "<tr>\n");
+
+   /* ------------------------------------------------------------- *
+    *  Cycle through the 12 year history columns, oldest first      *
+    * ------------------------------------------------------------- */
+   int i;
+   for(i = 11; i >= 0; i--) {
+      /* ------------------------------------------------------------- *
+       * Create the header row for individual months                   *
+       * ------------------------------------------------------------- */
+      int show_year = year - i;
+      if(verbose == 1) printf("Debug: show year=%d\n", show_year);
+      fprintf(html, "   <td class=\"monthcell\">%d</td>\n", show_year);
+   }
+   fprintf(html, "</tr>\n");
+}
+
+void year_datahtml(int year, time_t ts){
+   int i, j, k = 0;
+   unsigned long step = 86400;
+   /* ------------------------------------------------------------- *
+    *  Create the data row for min max values to display            *
+    * ------------------------------------------------------------- */
+   fprintf(html, "<tr>\n");
+   for(i = 11; i >= 0; i--) {
+      int show_year = year-i;
+      /* ------------------------------------------------------------- *
+       * Create the start timestamp for rrd fetch, Jan 1st midnight.   *
+       * ------------------------------------------------------------- */
+      struct tm start_tm;
+      start_tm.tm_year = show_year-1900;
+      start_tm.tm_mon  = 0;
+      start_tm.tm_mday = 1;
+      start_tm.tm_hour = 0;
+      start_tm.tm_min  = 0;
+      start_tm.tm_sec  = 0;
+
+      time_t tstart = mktime(&start_tm);
+      if(tstart == -1) printf("Error");
+      if(verbose == 1) printf("Debug: ts=%lld start date=%s", (long long) tstart, ctime(&tstart));
+
+      /* ------------------------------------------------------------- *
+       * Create the end timestamp for rrd fetch, Dec 31st 23:59:59     *
+       * ------------------------------------------------------------- */
+      struct tm end_tm;
+      end_tm.tm_year = show_year-1900;
+      end_tm.tm_mon  = 11;
+      end_tm.tm_mday = 31;
+      end_tm.tm_hour = 23;
+      end_tm.tm_min  = 59;
+      end_tm.tm_sec  = 59;
+
+      time_t tend = mktime(&end_tm);
+      if(tend == -1) printf("Error creating RRD timerange timestamp tend.");
+      if(tend > ts) tend = ts; // if we are at the current date, end at now time
+      if(verbose == 1) printf("Debug: ts=%lld end date=%s", (long long) tend, ctime(&tend));
+
+      /* ------------------------------------------------------------- *
+       * rrd_fetch_r() gets all RRD values for a specific time range.  *
+       * 8x function args: 5x input, 3x output. Returns 0 for success. *
+       * (1) const char *filename,                                     *
+       * (2) const char *consolidation_function,                       *
+       * (3) time_t *start,                                            *
+       * (4) time_t *end,                                              *
+       * (5) unsigned long *step,                                      *
+       * (6) unsigned long *ds_cnt,                                    *
+       * (7) char ***ds_namv,                                          *
+       * (8) rrd_value_t **data);                                      *
+       * ------------------------------------------------------------- */
+      int ret = rrd_fetch_r(rrdfile, "MIN", &tstart, &tend, &step, &ds_cnt, &ds_namv, &mindata);
+      if (ret != 0) { printf("Error: cannot fetch data from RRD.\n"); exit(-1); }
+      if(verbose == 1) printf("Debug: min rrd_fetch_r return=%d, ds count=%lu\n", ret, ds_cnt);
+
+      ret = rrd_fetch_r(rrdfile, "MAX", &tstart, &tend, &step, &ds_cnt, &ds_namv, &maxdata);
+      if (ret != 0) { printf("Error: cannot fetch data from RRD.\n"); exit(-1); }
+      if(verbose == 1) printf("Debug: max rrd_fetch_r return=%d, ds count=%lu\n", ret, ds_cnt);
+
+      k=0;
+      int days = ((tend - tstart) / 86400)-1;
+      if(verbose == 1) printf("Debug: result day count=%d\n", days);
+
+      /* ------------------------------------------------------------- *
+       * Go through the returned dataset, and determine min/max values *
+       * for temperature, which is the first data source in ds_namv[0].*
+       * ------------------------------------------------------------- */
+      double daymin = DINF;
+      double daymax = -1000;
+
+      for(j=0; j<(days*ds_cnt); j=j+ds_cnt) {
+         k++;
+         if(! isnan(mindata[j])) {
+            if(verbose == 1) printf("Debug: day [%d] value [%d] rrd_fetch_r mindata=[%s:%.2f]\n", k, j, ds_namv[0], mindata[j]);
+            if(daymin > mindata[j]) daymin = mindata[j];
+         }
+         if(! isnan(maxdata[j])) {
+            if(verbose == 1) printf("Debug: day [%d] value [%d] rrd_fetch_r maxdata=[%s:%.2f]\n", k, j, ds_namv[0], maxdata[j]);
+            if(daymax < maxdata[j]) daymax = maxdata[j];
+         }
+      }
+      if(daymax != -1000) fprintf(html, "   <td class=\"datacell\">%.1f&deg;C", daymax);
+      else  fprintf(html, "   <td class=\"emptycell\">N/A");
+      fprintf(html, " <br> ");
+      if(! isinf(daymin)) fprintf(html, "%.1f&deg;C</td>\n", daymin);
+      else  fprintf(html, "N/A</td>\n");
+   }
 }
 
 void month_headhtml(int mon, int year){
@@ -263,7 +382,7 @@ void day_headhtml(time_t tsnow){
 }
 
 void day_datahtml(time_t tsnow) {
-   unsigned long step = 60;
+   unsigned long step = 3600;
    /* ------------------------------------------------------------- *
     *  Create the data row for min max values to display            *
     * ------------------------------------------------------------- */
@@ -332,6 +451,8 @@ void day_datahtml(time_t tsnow) {
       if(j==24) {
          k++; j=0;
 
+         if(verbose == 1) printf("Debug: day [%2d] %s min [%.2f] max [%.2f]\n",
+                               k-1, ds_namv[0], daymin, daymax);
          /* print the max values before processing the next day */
          if(daymax != -1000) fprintf(html, "   <td class=\"datacell\">%.1f&deg;C", daymax);
          else  fprintf(html, "   <td class=\"emptycell\">N/A");
@@ -389,6 +510,14 @@ int main(int argc, char *argv[]) {
    if(outtype == 2) {
       month_headhtml(this_mon, this_year);
       month_datahtml(this_mon, this_year, tsnow);
+   }
+
+   /* ------------------------------------------------------------ *
+    * If we received -y, create the yearly html table data         *
+    * ------------------------------------------------------------ */
+   if(outtype == 3) {
+      year_headhtml(this_year);
+      year_datahtml(this_year, tsnow);
    }
 
    fprintf(html, "</tr>\n");

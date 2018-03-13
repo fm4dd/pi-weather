@@ -103,8 +103,8 @@ if [ ! -f $WHOME/var/daymimax.htm ]; then
    echo "`date`: Created $WHOME/var/daymimax.htm"
 fi
 
-if [ -f $WHOME/var/daymimax.htm ]
-   || [ -f $WHOME/var/momimax.htm ]
+if [ -f $WHOME/var/daymimax.htm ]\
+   || [ -f $WHOME/var/momimax.htm ]\
    || [ -f $WHOME/var/yearmimax.htm ]; then
    echo "`date`: Uploading daymimax/momimax/yearmimax to $SFTPDEST"
    /usr/bin/sftp -b $WHOME/etc/sftp-htm.bat $SFTPDEST
