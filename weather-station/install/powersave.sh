@@ -16,7 +16,7 @@ echo "# 1. Check if this script runs as user "pi", not as root."
 echo "##########################################################"
 if (( $EUID != 1000 )); then
    echo "This script must be run as user \"pi\"."
-   exit 1;
+   exit 1
 fi
 echo "OK, the user ID is [$EUID] = `whoami`"
 
@@ -31,8 +31,9 @@ HDMIOFF="/usr/bin/tvservice -o"
 GREP=`grep "$HDMIOFF" /etc/rc.local`
 if [[ $? > 0 ]]; then
    echo "HMDI not yet disabled, update /etc/rc.local:"
-   echo "Remove last line exit 0, we re-add it later."
-   sudo tail -n 1 /etc/rc.local | tee >(wc -c | xargs -I {} sudo truncate /etc/rc.local -s -{})
+   echo "Remove last line \"exit 0\", we re-add it later."
+   sudo tail -n 1 /etc/rc.local
+   sudo tail -n 1 /etc/rc.local | sudo wc -c | sudo xargs -I {} sudo truncate /etc/rc.local -s -{}
 
    echo "Now add 4 lines to /etc/rc.local:"
    LINE1="##########################################################"

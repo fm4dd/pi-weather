@@ -62,10 +62,18 @@ echo "`date`: Compressing XML export file $WHOME/var/rrdcopy.xml"
 gzip $WHOME/var/rrdcopy.xml
 
 ##########################################################
-# Upload xml DB archive /tmp/rrdcopy.xml.gz to the server
+# Check if destination is set, exit of set to "none"
 ##########################################################
+if [ ${MYCONFIG[pi-weather-sftp]} == "none" ]; then
+   echo "send-data.sh: pi-weather-sftp=none, remote data upload disabled."
+   exit
+fi
+
 SFTPDEST=$STATION@${MYCONFIG[pi-weather-sftp]}
 
+##########################################################
+# Upload xml DB archive /tmp/rrdcopy.xml.gz to the server
+##########################################################
 if [ -f $WHOME/var/rrdcopy.xml.gz ]; then
    echo "`date`: Uploading XML export file to $SFTPDEST"
    /usr/bin/sftp -b $WHOME/etc/sftp-xml.bat $SFTPDEST

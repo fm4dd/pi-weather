@@ -24,21 +24,11 @@
 <div id="banner">
 <h1>Pi-Weather Station <?php echo gethostname() ?></h1>
 <h2>Raspberry Pi local weather data collection system</h2>
+</div>
 
-</div>
-<div id="vmenu">
-  <ul>
-    <li><a href="index.php" class="selected" title="Weather Station Data"><span>Station Data</span></a></li>
-    <li><a href="showlog.php" title="Weather Station Logs"><span>Station Logs</span></a></li>
-    <li><a href="phpinfo.php" title="Weather Station PHP info"><span>Station PHP info</span></a></li>
-    <li><a href="http://weather.fm4dd.com/" title="Weather Station Online"><span>Weather Online</span></a></li>
-    <li><a href="http://fm4dd.com/" class="selected" title="FM4DD Site"><span>FM4DD Home</span></a></li>
-    <li><a href="https://github.com/fm4dd/pi-weather" title="Weather Station Plans"><span>Github Docs</span></a></li>
-  </ul>
-</div>
+<?php include("./vmenu.htm"); ?>
 
 <div id="content">
-
 <?php if(file_exists("images/raspicam.jpg")) {      // check if file exists
   $tstamp = filemtime("images/raspicam.jpg");       // get file modification time
   $dt = new DateTime();                             // create new Date object
@@ -185,7 +175,7 @@ $cputemp = exec('cat /sys/class/thermal/thermal_zone0/temp |  awk \'{printf("%.2
 // get pi-weather config data
 ini_set("auto_detect_line_endings", true);
 $conf = array();
-$fh=fopen($__FILE__."../etc/pi-weather.conf", "r");
+$fh=fopen(__DIR__."/../etc/pi-weather.conf", "r");
 while ($line=fgets($fh, 80)) {
   if ((! preg_match('/^#/', $line)) &&    // show only lines w/o #
      (! preg_match('/^$/', $line))) {     // and who are not empty

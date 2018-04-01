@@ -57,7 +57,22 @@ echo "Done."
 echo
 
 echo "##########################################################"
-echo "# 3. Before we get SW packages, refresh the SW catalogue"
+echo "# 3. Check if the Raspberry Pi OS version is sufficient"
+echo "##########################################################"
+MAJOR=`lsb_release -r -s | cut -d "." -f1` # lsb_release -r -s 
+MINOR=`lsb_release -r -s | cut -d "." -f2` # returns e.g. "9.4"
+
+   echo "Rasbian release check: identified version $MAJOR.$MINOR"
+if (( $MAJOR != 9 )); then
+   echo "Error - pi-weather supports Rasbian Stretch Release 9 and up."
+   exit 1;
+fi
+
+echo "Done."
+echo
+
+echo "##########################################################"
+echo "# 4. Before we get SW packages, refresh the SW catalogue"
 echo "# and remove any unneeded SW packages."
 echo "##########################################################"
 EXECUTE="sudo apt-get update"
@@ -80,7 +95,7 @@ echo "Done."
 echo
 
 echo "##########################################################"
-echo "# 4. Install tools and development headers for the I2C bus" 
+echo "# 5. Install tools and development headers for the I2C bus" 
 echo "# supporting BME280, BMP180 sensors and I2C RTC modules"
 echo "##########################################################"
 APPLIST="i2c-tools libi2c-dev"
@@ -96,7 +111,7 @@ echo "Done."
 echo
 
 echo "##########################################################"
-echo "# 5. Install the RRD database tools and development files"
+echo "# 6. Install the RRD database tools and development files"
 echo "##########################################################"
 APPLIST="rrdtool librrd8 librrd-dev"
 EXECUTE="sudo apt-get install $APPLIST -y -q"
@@ -111,7 +126,7 @@ echo "Done."
 echo
 
 echo "##########################################################"
-echo "# 6. Install video creation tools: libav, imagemagick, zip"
+echo "# 7. Install video creation tools: libav, imagemagick, zip"
 echo "##########################################################"
 APPLIST="libav-tools imagemagick zip"
 EXECUTE="sudo apt-get install $APPLIST -y -q"
@@ -126,9 +141,9 @@ echo "Done."
 echo
 
 echo "##########################################################"
-echo "# 7. Install webserver: lighttpd, lighttpd-doc, php-cgi"
+echo "# 8. Install webserver: lighttpd, lighttpd-doc, php-cgi"
 echo "##########################################################"
-APPLIST="lighttpd lighttpd-doc php-cgi"
+APPLIST="lighttpd lighttpd-doc php-cgi php-mbstring"
 EXECUTE="sudo apt-get install $APPLIST -y -q"
 echo "Getting SW packages [$APPLIST]. Please wait ..."
 $EXECUTE
@@ -141,7 +156,7 @@ echo "Done."
 echo
 
 echo "##########################################################"
-echo "# 8. Create the home directory and subfolder structure"
+echo "# 9. Create the home directory and subfolder structure"
 echo "##########################################################"
 HOMEDIR=${MYCONFIG[pi-weather-dir]}
 if [[ ! -d $HOMEDIR ]]; then
@@ -170,7 +185,7 @@ echo "Done."
 echo
 
 echo "##########################################################"
-echo "# 9. Define HOMEDIR/var as tmpfs to reduce SD card wear"
+echo "# 10. Define HOMEDIR/var as tmpfs to reduce SD card wear"
 echo "##########################################################"
 TODAY=`date +'%Y%m%d'`
 if [ -f ../backup/$TODAY-fstab.backup ]; then
@@ -209,7 +224,7 @@ echo "Done."
 echo
 
 echo "##########################################################"
-echo "# 10. Compile 'C' source code in ../src"
+echo "# 11. Compile 'C' source code in ../src"
 echo "##########################################################"
 cd ../src
 echo "Cleanup any old binaries in src:"
@@ -220,7 +235,7 @@ make
 echo
 
 echo "##########################################################"
-echo "# 11. Install programs and scripts to $HOMEDIR/bin"
+echo "# 12. Install programs and scripts to $HOMEDIR/bin"
 echo "##########################################################"
 export BINDIR=$HOMEDIR/bin
 echo "Installing application binaries into $BINDIR."
@@ -237,7 +252,7 @@ echo "Done."
 echo
 
 echo "##########################################################"
-echo "# 12. rrdcreate and rrdcreate2 creates empty RRD databases"
+echo "# 13. rrdcreate and rrdcreate2 creates empty RRD databases"
 echo "##########################################################"
 ./rrdcreate.sh
 RRD_DIR=${MYCONFIG[pi-weather-dir]}/rrd
@@ -258,7 +273,7 @@ echo "Done."
 echo
 
 echo "##########################################################"
-echo "# 13. Copy the "pi-weather.conf" file to $HOMEDIR/etc"
+echo "# 14. Copy the "pi-weather.conf" file to $HOMEDIR/etc"
 echo "##########################################################"
 CONFIG="../etc/pi-weather.conf"
 if [[ ! -f $CONFIG ]]; then
@@ -278,7 +293,7 @@ echo "Done."
 echo
 
 echo "##########################################################"
-echo "# 14. Test the basic weatherstation functions"
+echo "# 15. Test the basic weatherstation functions"
 echo "##########################################################"
 ./sensortest.sh
 echo "./sensortest.sh returned [$?]"
@@ -290,7 +305,7 @@ fi
 echo
 
 echo "##########################################################"
-echo "# 15. Check SSH key for the data upload to Internet server"
+echo "# 16. Check SSH key for the data upload to Internet server"
 echo "##########################################################"
 PRIVKEY=`ls ~/.ssh/id_rsa`
 PUBKEY=`ls ~/.ssh/id_rsa.pub`
@@ -310,7 +325,7 @@ echo "Done."
 echo
 
 echo "##########################################################"
-echo "# 16. Create crontab entries for automated data collection"
+echo "# 17. Create crontab entries for automated data collection"
 echo "##########################################################"
 TODAY=`date +'%Y%m%d'`
 if [ -f ../backup/$TODAY-crontab.backup ]; then
@@ -341,7 +356,7 @@ echo "Done."
 echo
 
 echo "##########################################################"
-echo "# 17. Create crontab entries for automated image archiving"
+echo "# 18. Create crontab entries for automated image archiving"
 echo "##########################################################"
 STIME=${MYCONFIG[wcam-img-stime]}
 ETIME=${MYCONFIG[wcam-img-etime]}
@@ -365,7 +380,7 @@ echo "Done."
 echo
 
 echo "##########################################################"
-echo "# 18. Create crontab entries for RRD DB and graph updates"
+echo "# 19. Create crontab entries for RRD DB and graph updates"
 echo "##########################################################"
 
 GREP=`grep $HOMEDIR/bin/rrdupdate.sh /etc/crontab`
@@ -386,12 +401,12 @@ echo "Done."
 echo
 
 echo "##########################################################"
-echo "# 19. Turn off crontab logging, reduce syslog noise level"
+echo "# 20. Turn off crontab logging, reduce syslog noise level"
 echo "##########################################################"
 
 GREP=`grep 'EXTRA_OPTS=\"-L 0\"' /etc/default/cron`
 if [[ $? > 0 ]]; then
-   LINE1="# Turn off cron logs to syslog"
+   LINE1="# pi-weather: Turn off cron logs to syslog"
    sudo sh -c "echo \"$LINE1\" >> /etc/default/cron"
    LINE2="EXTRA_OPTS=\"-L 0\""
    sudo sh -c "echo \"$LINE2\" >> /etc/default/cron"
@@ -404,11 +419,33 @@ else
    echo "Found EXTRA_OPTS line in /etc/default/cron file:"
    echo "$GREP"
 fi
+echo
+
+# 2018 added for Debian Stretch based Raspbian
+GREP=`grep -e '^LogLevel=' /etc/systemd/system.conf`
+if [[ $? > 0 ]]; then
+   LINE3="# pi-weather: Turn off systemd log noise to syslog"
+   sudo sh -c "echo \"$LINE3\" >> /etc/systemd/system.conf"
+   LINE4="LogLevel=warning"
+   sudo sh -c "echo \"$LINE4\" >> /etc/systemd/system.conf"
+   echo "Adding 2 lines to /etc/systemd/system.conf file:"
+   tail -3 /etc/systemd/system.conf
+fi
+echo
+
+if [[ -d /etc/rsyslog.d ]]; then
+   echo "Install/overwrite systemd log noise reduction file:"
+   echo "sudo cp ./no-systemd-noise.conf /etc/rsyslog.d"
+   sudo cp ./no-systemd-noise.conf /etc/rsyslog.d
+   ls -l /etc/rsyslog.d/no-systemd-noise.conf
+fi
+echo
+
 echo "Done."
 echo
 
 echo "##########################################################"
-echo "# 20. Setting local hostname to Station ID pi-weather-sid"
+echo "# 21. Setting local hostname to Station ID pi-weather-sid"
 echo "##########################################################"
 SID=${MYCONFIG[pi-weather-sid]}
 
@@ -434,7 +471,7 @@ echo "Done."
 echo
 
 echo "##########################################################"
-echo "# 21. Configuring local web server for data visualization"
+echo "# 22. Configuring local web server for data visualization"
 echo "##########################################################"
 SID=${MYCONFIG[pi-weather-sid]}
 
@@ -454,7 +491,7 @@ echo "Done."
 echo
 
 echo "##########################################################"
-echo "# 22. Installing local web server documents and images"
+echo "# 23. Installing local web server documents and images"
 echo "##########################################################"
 for img in ../web/img/*; do
    fbname=$(basename "$img")
@@ -467,6 +504,11 @@ echo "cp ../web/style.css $HOMEDIR/web"
 cp ../web/style.css $HOMEDIR/web
 echo "chmod 644 $HOMEDIR/web/style.css"
 chmod 644 $HOMEDIR/web/style.css
+
+echo "cp ../web/vmenu.tm $HOMEDIR/web"
+cp ../web/vmenu.htm $HOMEDIR/web
+echo "chmod 644 $HOMEDIR/web/vmenu.htm"
+chmod 644 $HOMEDIR/web/vmenu.htm
 
 echo "cp ../web/index.php $HOMEDIR/web"
 cp ../web/index.php $HOMEDIR/web
@@ -485,9 +527,10 @@ chmod 644 $HOMEDIR/web/phpinfo.php
 echo "Done."
 echo
 
-#echo "##########################################################"
-#echo "# 23. Create the SFTP batch file for sensor data upload"
-#echo "##########################################################"
+echo "##########################################################"
+echo "# 24. Create the SFTP batch files"
+echo "##########################################################"
+echo "Create the SFTP batch file for sensor data upload"
 cat <<EOM >$HOMEDIR/etc/sftp-dat.bat
 cd var
 put $HOMEDIR/var/sensor.txt
@@ -501,9 +544,7 @@ EOM
 echo "Done."
 echo
 
-#echo "##########################################################"
-#echo "# 24. Create the SFTP batch file for RRD XML backup upload"
-#echo "##########################################################"
+echo "Create the SFTP batch file for RRD XML backup upload"
 cat <<EOM >$HOMEDIR/etc/sftp-xml.bat
 cd var
 put $HOMEDIR/var/rrdcopy.xml.gz rrdcopy.xml.gz.tmp
@@ -514,9 +555,7 @@ EOM
 echo "Done."
 echo
 
-#echo "##########################################################"
-#echo "# 25. Create the SFTP batch file for MP4 timelapse upload"
-#echo "##########################################################"
+echo "Create the SFTP batch file for MP4 timelapse upload"
 cat <<EOM >$HOMEDIR/etc/sftp-mp4.bat
 cd var
 put $HOMEDIR/var/yesterday.mp4 yesterday.mp4.tmp
@@ -527,9 +566,7 @@ EOM
 echo "Done."
 echo
 
-#echo "##########################################################"
-#echo "# 26. Create the daymimax/momimax.htm SFTP batch file"
-#echo "##########################################################"
+echo "Create the daymimax/momimax.htm SFTP batch file"
 cat <<EOM >$HOMEDIR/etc/sftp-htm.bat
 cd var
 put $HOMEDIR/var/daymimax.htm daymimax.htm.tmp
@@ -545,7 +582,7 @@ echo "Done."
 echo
 
 echo "##########################################################"
-echo "# 27. Create crontab entry for daily MP4 file creation"
+echo "# 25. Create crontab entry for daily MP4 file creation"
 echo "##########################################################"
 
 GREP=`grep $HOMEDIR/bin/wcam-mkmovie /etc/crontab`
@@ -566,7 +603,7 @@ echo "Done."
 echo
 
 echo "##########################################################"
-echo "# 28. Create crontab entry for RRD XML and MP4 file upload"
+echo "# 26. Create crontab entry for RRD XML and MP4 file upload"
 echo "##########################################################"
 
 GREP=`grep $HOMEDIR/bin/send-night.sh /etc/crontab`
@@ -587,7 +624,7 @@ echo "Done."
 echo
 
 echo "##########################################################"
-echo "# 29. Power saving: disable HDMI, PWR and ACT LED lights"
+echo "# 27. Power saving: disable HDMI, PWR and ACT LED lights"
 echo "##########################################################"
 ./powersave.sh
 echo "./powersave.sh returned [$?]"
@@ -599,6 +636,18 @@ echo "Done."
 echo
 
 echo "##########################################################"
-echo "# End of Pi-Weather Installation."
-echo "# Best to reboot the system to enable all changes."
+echo "# 28. Disable IPv6 protocol support"
+echo "##########################################################"
+./disable-ipv6.sh
+echo "./disable-ipv6.sh returned [$?]"
+
+if [[ $? > 0 ]]; then
+   echo "Error - disable-ipv6.sh failed" >&2
+fi
+echo "Done."
+echo
+
+echo "##########################################################"
+echo "# End of Pi-Weather Installation. Review script output and"
+echo "# please reboot the system to enable all changes. COMPLETE"
 echo "##########################################################"

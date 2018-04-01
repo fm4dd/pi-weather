@@ -1,5 +1,7 @@
 Quantity, Description, Distributer, Distributer P/N, Manufacturer, Manufacturer P/N, Price/Unit, Price Total, Currency, Notes
 1, Waterproof Junction Box T100, conrad.de, 394654-62, OBO Bettermann,2007077,14.99,2000,YEN,14.99 EUR
+1, Inner Frame Standoff Sakura, Tokyu Hands, 200x15x15, n/a, n/a, 120,120,YEN,
+1, Inner Frame Top Cross Sakura, Tokyu Hands, 160x110x15, n/a, n/a,270,270,YEN,
 2, Sensor Frame Side Panel Sakura, Tokyu Hands, 150x50x15, n/a, n/a,180,360,YEN,
 1, Sensor Frame Back Panel Sakura, Tokyu Hands, 150x110x15, n/a, n/a,240,240,YEN,
 1, Sensor Frame Camera Mount Sakura, Tokyu Hands, 68x30x15, n/a, n/a,0,0,YEN, material included in back panel
@@ -17,9 +19,10 @@ Quantity, Description, Distributer, Distributer P/N, Manufacturer, Manufacturer 
 1, Raspberry Pi Camera v2, Akizuki Denshi, M-10518, RS Components, n/a,4300,4300,YEN,
 1, Raspberry Pi Camera Case Black, Sengoku, EEHD-4RL7, SparkFun, PRT-12846,1280,1280,YEN,
 1, Pin Frame 2x7, Akizuki Denshi, C-00169, Useconn Electronics, n/a,30,30,YEN,
-1, Universal Prototyping Board, Akizuki Denshi, P-04303, Picotec, n/a,100,100,YEN,
+1, Universal Prototyping Board, Akizuki Denshi, P-04303, Picotec, n/a,80,80,YEN,
 2, Pin Frame 1x6, Akizuki Denshi, C-03784, n/a, n/a,20,40,YEN,
 1, I2C Sensor AE-BME280, Akizuki Denshi, K-09421, Akizuki Electronics, n/a,1080,1080,YEN,
 1, Sensor Case 25x15x5, Akizuki Denshi,P-12045, Takachi, TW5-3-5G,150,150,YEN,
 1, Ribbon Cable 10-wire, Akizuki Denshi,C-06973,Herwell Asia Limited,n/a,60,60,YEN,
-,,,,,,total,21510,YEN,
+1, Universal Board, Marutsu, TNF2535, Takachi, TNF 25-35,120,120,YEN,
+,,,,,,total,21900,YEN,

@@ -51,7 +51,7 @@ WHOME=${MYCONFIG[pi-weather-dir]}
 if [ $1 ] && [ $1 == "-p" ]; then
    echo "rrdrepair.sh: final PRD run, updating real data"
 else
-   echo "rrdrepair.sh: test run, simulating execution"
+   echo "rrdrepair.sh: test run, simulating execution. Use ./rrdrepair.sh -p for PRD run."
 fi
 
 echo "Done."
@@ -84,7 +84,7 @@ echo
 echo "##########################################################"
 echo "# 3. Take existing RRD DB and convert to local XML extract"
 echo "##########################################################"
-TMPXML="$WHOME/var/tmp/rrdrepair.xml"
+TMPXML="$WHOME/var/rrdrepair.xml"
 
 echo "rrdtool dump $OLDRRD $TMPXML"
 rrdtool dump $OLDRRD $TMPXML
@@ -111,7 +111,7 @@ echo
 echo "##########################################################"
 echo "# 5. Import $TMPXML data to RRD"
 echo "##########################################################"
-TMPRRD="$WHOME/var/tmp/rrdrepair.rrd"
+TMPRRD="$WHOME/var/rrdrepair.rrd"
 
 if [[ ! -f $TMPXML ]]; then
    echo "Error - cannot find XML file [$TMPXML]" >&2

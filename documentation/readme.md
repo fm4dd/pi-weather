@@ -17,6 +17,10 @@ A permanent weather display was on the back of my mind. A 20x4 LCD character dis
 
 <img align="left" src="weather-station-v1.1\images\weather-station-v11-01.jpg" height="160px" width="120px"> <img align="left" src="weather-station-v1.1\images\weather-station-v11-02.jpg" height="160px" width="120px"> <img align="left" src="weather-station-v1.1\images\weather-station-v11-03.jpg" height="160x" width="120px"> <img src="weather-station-v1.1\images\weather-station-v11-04.jpg" height="160x" width="213px">
 
+This version started to use the Raspberry Pi 3 with built-in WiFi for network connectivity. Together with the new sensor case, the interface wiring slightly changed from version 1.0. A serial line addition is prepared to obtain data from a Victron charge controller (solar-powered "off-the-grid" operation).
+
+<img src="weather-station-v1.1/images/raspi-interface-schematics-v11.png">
+
 ## Weather Station, Version 1.0
 
 This was the first weather station build. It used a AM2302 temperature/humidity sensor from <a href="http://www.aosong.com/en/home/index.asp">Aosong</a>. After functional tests confirmed the sensors function, a suitable weather-proof box for housing the Raspberry Pi was found at <a href="https://www.conrad.de/">Conrad</a>, Bettermans junction box <a href="https://obo.de/article/display/en-wo/junction-box-t-100-plug-in-seal.html">OBO T100</a>.

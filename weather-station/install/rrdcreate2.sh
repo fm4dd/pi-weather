@@ -66,8 +66,8 @@ if ! [ -x "$(command -v rrdtool)" ]; then
 fi
 
 ##########################################################
-# The CPU Temp RRD database will hold four data sources:
-# ----------------------------------------------
+# The CPU Temp RRD database will hold one data source:
+# ----------------------------------------------------
 # 1. CPU temperature (in degree Celsius)
 #
 # The data slots are allocated as follows:

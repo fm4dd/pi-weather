@@ -59,14 +59,16 @@ STATION=${MYCONFIG[pi-weather-sid]}
 STYPE=${MYCONFIG[sensor-type]}     # e.g. bme280, am2302
 SADDR=${MYCONFIG[sensor-addr]}     # i2c sensor address
 TCALI=${MYCONFIG[pi-weather-tcal]} # temp correction
+PCALI=${MYCONFIG[pi-weather-pcal]} # bmpr correction
+HCALI=${MYCONFIG[pi-weather-hcal]} # humi correction
 
 echo "send-data.sh: Getting sensor data for $STYPE $SADDR";
 if [ "$STYPE" == "bme280" ]; then
-   EXECUTE="$WHOME/bin/getsensor -t $STYPE -a $SADDR -c $TCALI -o $WHOME/web/getsensor.htm"
+   EXECUTE="$WHOME/bin/getsensor -t $STYPE -a $SADDR -b $PCALI -c $TCALI -d $HCALI -o $WHOME/web/getsensor.htm"
 fi
 if [ "$STYPE" == "am2302" ]; then
    GPIO=${MYCONFIG[sensor-gpio]}    # am2302/dht22 gpio pin number, e.g. 4
-   EXECUTE="$WHOME/bin/getsensor -t $STYPE -a $SADDR -p $GPIO -c $TCALI -o $WHOME/web/getsensor.htm"
+   EXECUTE="$WHOME/bin/getsensor -t $STYPE -a $SADDR -p $GPIO -b $PCALI -c $TCALI -d $HCALI -o $WHOME/web/getsensor.htm"
 fi
 echo "send-data.sh: $EXECUTE";
 SENSORDATA=`$EXECUTE`
@@ -150,6 +152,11 @@ EOM
 # 4. Copy four files var/raspinet.txt, var/raspicam.jpg
 # var/sensor.txt and var/backup.txt to the Internet server
 ##########################################################
+if [ ${MYCONFIG[pi-weather-sftp]} == "none" ]; then
+   echo "send-data.sh: pi-weather-sftp=none, remote data upload disabled."
+   exit
+fi
+
 SFTPDEST=$STATION@${MYCONFIG[pi-weather-sftp]}
 
 if [ -f $WHOME/etc/sftp-dat.bat ]; then

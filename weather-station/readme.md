@@ -59,7 +59,7 @@ ln -s /etc/init.d/ssh /etc/rc5.d/S02ssh (or manually create a empty file called 
 umount /mnt
 ```
 
-Latest version of Rasbian was updated to Debian 9 Stretch, and works. It required only two package name updates (librrd4->librrd8, php5-cgi->php-cgi).
+Latest version of Rasbian was updated to Debian 9 Stretch, and works. It required only two package name updates (librrd4->librrd8, php5-cgi->php-cgi). Stretch added systemd logging noise which  had to be filtered to save the sdcard from extra wear.
 
 ## Software Installation
 

@@ -7,6 +7,8 @@
  *                   am2302 = AM2302 one-wire sensor + BMP180   *
  *              -a = I2C address for BME280 or BMP180           *
  *              -p = the GPIO pin nunber of AM2302/DHT22 sensor *
+ *              -b,c,d = calibration offset for temp, pressure  *
+ *                   and humidity                               *
  *              -o = write results into html file               *
  *                                                              *
  * return:      0 on success, and -1 on errors.                 *
@@ -37,6 +39,8 @@ char senaddr[256];
 char htmfile[256];
 int sensorpin = 0;
 int tempcalib = 0;
+int humicalib = 0;
+int bmprcalib = 0;
 extern char *optarg;
 extern int optind, opterr, optopt;
 
@@ -56,15 +60,17 @@ void usage() {
 Command line parameters have the following format:\n\
    -t   sensor module type, Example: bme280\n\
         supported types: bme280, am2302 (in combination with BMP180)\n\
-   -a   sensor address on the I2C bus in hex, Example: 0x76\n\
-   -p   optional, sensor pin for AM2302 sensors, Example: 4\n\
-   -c   optional, temperature calibration offset, Example: -1\n\
-   -o   optional, write sensor data to HTML file, Example: ./getsensor.html\n\
+   -a   sensor address on the I2C bus in hex, Example: -a 0x76\n\
+   -p   optional, sensor pin for AM2302 sensors, Example: -p 4\n\
+   -b   optional, pressure calibration offset, Example: -b 100\n\
+   -c   optional, temperature calibration offset, Example: -c -1\n\
+   -d   optional, humidity calibration offset, Example: -d -2\n\
+   -o   optional, write sensor data to HTML file, Example: -o ./getsensor.html\n\
    -h   optional, display this message\n\
    -v   optional, enables debug output\n\
 \n\
 Usage examples:\n\
-./getsensor -t bme280 -a 0x76 -c -1 -o ./getsensor.html -v\n\
+./getsensor -t bme280 -a 0x76 -b 50 -c -1 -d -2 -o ./getsensor.html -v\n\
 ./getsensor -t am2302 -a 0x76 -p 4 -c -1 -o ./getsensor.html -v\n";
    printf(usage);
 }
@@ -78,7 +84,7 @@ void parseargs(int argc, char* argv[]) {
 
    if(argc == 1) { usage(); exit(-1); }
 
-   while ((arg = (int) getopt (argc, argv, "t:a:p:c:o:vh")) != -1) {
+   while ((arg = (int) getopt (argc, argv, "t:a:p:b:c:d:o:vh")) != -1) {
       switch (arg) {
          // arg -t + sensor type, type: string
          // mandatory, example: bme280
@@ -101,11 +107,25 @@ void parseargs(int argc, char* argv[]) {
             sensorpin = atoi(optarg);
             break;
 
+         // arg -b + barometric pressure calibration, type: int
+         // optional, example: +100 (adds 100 Pa to pressure reading)
+         case 'b':
+            if(verbose == 1) printf("Debug: arg -b, value %s\n", optarg);
+            bmprcalib = atoi(optarg);
+            break;
+
          // arg -c + temp calibration, type: int
          // optional, example: -1 (reduces temp -1 degree)
          case 'c':
             if(verbose == 1) printf("Debug: arg -c, value %s\n", optarg);
             tempcalib = atoi(optarg);
+            break;
+
+         // arg -d + humidity calibration, type: int
+         // optional, example: -2 (reduces humidity -2 %)
+         case 'd':
+            if(verbose == 1) printf("Debug: arg -d, value %s\n", optarg);
+            humicalib = atoi(optarg);
             break;
 
          // arg -o + dst HTML file, type: string
@@ -209,11 +229,25 @@ int main(int argc, char *argv[]) {
          printf("Error: Cannot read sensor bmp180, return code %d.\n", res);
          exit(-1);
       }
-   }
+   } /* End reading am2302/dht22+bmp180 sensors */
+
+   /* -------------------------------------------------------- *
+    *  Add calibration values, adjust data before final output *
+    * -------------------------------------------------------- */
    if(verbose == 1) printf("Debug: sensor read temp=[%.2f] humi=[%.2f] bmpr=[%.2f]\n", temp, humi, bmpr);
    if(tempcalib != 0) {
       temp = temp + tempcalib;
       if(verbose == 1) printf("Debug: Adjust temperature with calibration offset [%d]\n", tempcalib);
+   }
+
+   if(bmprcalib != 0) {
+      bmpr = bmpr + bmprcalib;
+      if(verbose == 1) printf("Debug: Adjust pressure with calibration offset [%d]\n", bmprcalib);
+   }
+
+   if(humicalib != 0) {
+      humi = humi + humicalib;
+      if(verbose == 1) printf("Debug: Adjust humidity with calibration offset [%d]\n", humicalib);
    }
 
    if(outflag == 1) {
