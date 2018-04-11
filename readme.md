@@ -18,9 +18,9 @@ Building a weather station around a Raspberry Pi allows to create a system that 
 
 ## Getting Started
 
-The [documentation] (documentation/readme.md) directory has the hardware BOM and CAD drawings to build the weather station and the weather display.
+The <a href="documentation">documentation</a> directory has the hardware BOM and CAD drawings to build the weather station and the weather display.
 
-The necessary software can be cloned from the branches for the weather station [link] (weather-station), the optional weather display [link] (weather-display), and for the Internet accessible website [link] (weather-web) that consolidates multiple weather stations from various time zones.
+The necessary software can be cloned from the branches for the <a href="weather-station">weather station</a>, the optional <a href="weather-display">weather display</a>, and for the Internet accessible <a href="weather-web">website</a> that consolidates multiple weather stations from various time zones.
 
 ## Operations and Todo
 
