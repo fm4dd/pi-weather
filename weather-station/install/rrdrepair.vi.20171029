@@ -1,0 +1,8 @@
+:" ##########################################################
+:" rrdrepair.vim: This file is read by rrdrepair.sh as input.
+:" Below lines have been prepared to fix the RRD data lines
+:" with wrong sensor readings, e.g. -13.7 Celsius instead of 30
+:" ##########################################################
+:87773s/<row><v>NaN<\/v><v>NaN<\/v><v>NaN<\/v><v>NaN<\/v><\/row>/<row><v>1\.4952000000e+01<\/v><v>8\.6991000000e+01<\/v><v>9\.6875848000e+04<\/v><v>0\.0000000000e+00<\/v><\/row>/
+:95129s/<v>5\.6719500000e+01<\/v>/<v>1\.9950000000e+01<\/v>/
+:wq

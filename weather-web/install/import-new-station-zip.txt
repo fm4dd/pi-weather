@@ -1,0 +1,46 @@
+# copy zip file from /tmp to station root
+# -------------------------------------------------
+fm@susie:/srv/app/pi-web01$ sudo su
+root@susie:/srv/app/pi-web01# mv /tmp/pi-ws03-setup.zip chroot/pi-ws03/pi-ws03-setup.zip
+
+# extract zip file
+# -------------------------------------------------
+root@susie:/srv/app/pi-web01# cd chroot/pi-ws03/
+root@susie:/srv/app/pi-web01/chroot/pi-ws03# unzip -t pi-ws03-setup.zip
+Archive:  pi-ws03-setup.zip
+    testing: pi-ws03.conf             OK
+    testing: pi-ws03.pub              OK
+    testing: pi-ws03.xml              OK
+No errors detected in compressed data of pi-ws03-setup.zip.
+root@susie:/srv/app/pi-web01/chroot/pi-ws03# unzip pi-ws03-setup.zip
+Archive:  pi-ws03-setup.zip
+  inflating: pi-ws03.conf
+  inflating: pi-ws03.pub
+  inflating: pi-ws03.xml
+root@susie:/srv/app/pi-web01/chroot/pi-ws03# ls
+etc  log  pi-ws03.conf  pi-ws03.pub  pi-ws03-setup.zip  pi-ws03.xml  rrd  var
+
+# move files into place
+# -------------------------------------------------
+root@susie:/srv/app/pi-web01/chroot/pi-ws03# mv pi-ws03.conf etc/pi-ws03.conf
+
+root@susie:/srv/app/pi-web01/chroot/pi-ws03# mv pi-ws03.xml var/
+root@susie:/srv/app/pi-web01/chroot/pi-ws03# chown pi-ws03:rssh var/pi-ws03.xml
+
+root@susie:/srv/app/pi-web01/chroot/pi-ws03# cat pi-ws03.pub
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDXkCG9Pz/o7QgsLSI4gJ0PVtsxHXA8OeqrLOLv+Zl8uep/x36iUWgtBC0xoADsmxT6wpRfCITBMvLRE/5HIOy1CYndWi6SxYjN04JJD4UQiZId5aPjNMhj/+YPDBPfR69SWzd8BkxOb1C7g0WMrAv4ldS5fsoT8EXazvRHx7ajRBDZXk3yh+nfCzLom++nUciCZYHB5sPiQSsUt/M2ycOnXN8iBg7GgSVn2DWUwl0DFeKuXp0skgEOnEo1PPjK4xGspbXt35lrcvKIRjCgM3J3RAaabA9zO5+DJUsV2yigC+pgRgiEdZlCoAB7/smL7YSUEs+MrPZthFnsvFSBWBdp pi-ws03
+root@susie:/srv/app/pi-web01/chroot/pi-ws03# cat pi-ws03.pub > .ssh/authorized_keys2
+root@susie:/srv/app/pi-web01/chroot/pi-ws03# ls  .ssh/
+authorized_keys2
+root@susie:/srv/app/pi-web01/chroot/pi-ws03# rm pi-ws03.pub
+
+# check cron script
+# -------------------------------------------------
+root@susie:/srv/app/pi-web01/chroot/pi-ws03# tail -5 /etc/crontab
+##############################################################################
+# Raspberry Pi Weather Station Data Updates
+* * * * * root /srv/app/pi-web01/bin/rrdupdate.sh pi-ws01 > /srv/app/pi-web01/chroot/pi-ws01/log/rrd.log 2>&1
+* * * * * root /srv/app/pi-web01/bin/rrdupdate.sh pi-ws03 > /srv/app/pi-web01/chroot/pi-ws03/log/rrd.log 2>&1
+* * * * * root /srv/app/pi-web01/bin/rrdupdate.sh pi-ws02 > /srv/app/pi-web01/chroot/pi-ws02/log/rrd.log 2>&1
+
+# Ensure the station has upload enabled in etc/pi-weather.conf
