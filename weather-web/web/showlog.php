@@ -26,15 +26,8 @@
 <h2>Raspberry Pi local weather data collection system</h2>
 
 </div>
-<div id="vmenu">
-  <ul>
-    <li><a href="index.php" class="selected" title="Weather Station Data"><span>Station Data</span></a></li>
-    <li><a href="showlog.php" title="Weather Station Logs"><span>Station Logs</span></a></li>
-    <li><a href="http://weather.fm4dd.com/" title="Weather Station Online"><span>Weather Online</span></a></li>
-    <li><a href="http://fm4dd.com/" class="selected" title="FM4DD Site"><span>FM4DD Home</span></a></li>
-    <li><a href="https://github.com/fm4dd/pi-weather" title="Weather Station Plans"><span>Github Docs</span></a></li>
-  </ul>
-</div>
+
+<?php include("./vmenu.htm"); ?>
 
 <div id="content" style="min-height: 630px;">
 
@@ -60,7 +53,8 @@
     "$varpath/backup.txt",
     "$logpath/outage.log",
     "$logpath/outlier.log",
-    "$logpath/rrd.log"
+    "$logpath/rrd.log",
+    "$logpath/pi-solar.log"
   );
   ksort($files);
 

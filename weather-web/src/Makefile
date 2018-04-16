@@ -7,7 +7,7 @@ ifndef BINDIR
 endif
 
 ALLBIN=daytcalc outlier momimax
-ALLSH=rrdupdate.sh
+ALLSH=rrdupdate.sh solarupdate.sh
 
 all: ${ALLBIN}
 

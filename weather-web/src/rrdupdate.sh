@@ -305,6 +305,18 @@ else
 fi
 
 ##########################################################
+# If we have solar data, start the update processing
+##########################################################
+SOLARCONF=${GLOBALCFG[pi-web-data]}/chroot/$STATION/etc/pi-solar.conf
+SOLARLOG=${GLOBALCFG[pi-web-data]}/chroot/$STATION/log/pi-solar.log
+echo "Checking for solar integration: $SOLARCONF"
+if [ -f  $SOLARCONF ]; then
+   echo "Calling: ( $SCRIPTPATH/solarupdate.sh $1 > $SOLARLOG 2>&1 ) &"
+   ( $SCRIPTPATH/solarupdate.sh $1 > $SOLARLOG 2>&1 ) &
+fi
+
+
+##########################################################
 # Create the daily graph images
 ##########################################################
 TEMPPNG="$IMGPATH/daily_temp.png"
