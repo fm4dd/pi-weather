@@ -73,14 +73,35 @@
 // write station health table to sidebar
 echo "<h4>Station Health</h4>\n";
 include("./raspidat.htm");
-?>
+
+include("../common.php");
+$station=basename(__DIR__);
+$conf = array();
+$conf = loadConfig($station, "pi-solar.conf");
+
+  echo "<h4>PV System</h4>\n";
+  echo "<table class\"station\">\n";
+  echo "<tr><th>Charge Controller:</th></tr>\n";
+  echo "<tr><td>".$conf["pi-solar-charger"]."</td></tr>\n";
+  echo "<tr><th>Controller Rating:</th></tr>\n";
+  echo "<tr><td>".$conf["pi-solar-chrate"]."</td></tr>\n";
+  echo "<tr><th>PV Panel:</th></tr>\n";
+  echo "<tr><td>".$conf["pi-solar-pvtype"]."</td></tr>\n";
+  echo "<tr><th>Panel Rating:</th></tr>\n";
+  echo "<tr><td>".$conf["pi-solar-pvrate"]."</td></tr>\n";
+  echo "<tr><th>Battery Type:</th></tr>\n";
+  echo "<tr><td>".$conf["pi-solar-battype"]."</td></tr>\n";
+  echo "<tr><th>Battery Rating:</th></tr>\n";
+  echo "<tr><td>".$conf["pi-solar-batrate"]."</td></tr>\n";
+  echo "</table>\n";
+ ?>
 
     <h4>Solar System Images</h4>
     <a href="https://github.com/fm4dd/pi-victron"><img src="images/solar-system-01.jpg" height="160px" width="120px"></a>
   </div>
 
   <div id="footer">
-    <span class="left">&copy; 2017, FM4DD.com</span>
+    <span class="left">&copy; 2018, FM4DD.com</span>
     <span class="right">Raspberry Pi - running Raspbian</span>
   </div>
 </div>

@@ -1,8 +1,8 @@
 <?php
 // get pi-weather config data
-function loadConfig($station) {
+function loadConfig($station, $conf) {
    $datapath = "/srv/app/pi-web01";          // Set once by setup script
-   $confpath = $datapath."/chroot/".$station."/etc/".$station.".conf";
+   $confpath = $datapath."/chroot/".$station."/etc/".$conf;
 
    ini_set("auto_detect_line_endings", true);
    $conf = array();

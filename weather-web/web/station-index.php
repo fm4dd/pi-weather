@@ -26,26 +26,19 @@
 <h2>Raspberry Pi local weather data collection system</h2>
 
 </div>
-<div id="vmenu">
-  <ul>
-    <li><a href="index.php" class="selected" title="Weather Station Data"><span>Station Data</span></a></li>
-    <li><a href="showlog.php" title="Weather Station Logs"><span>Station Logs</span></a></li>
-    <li><a href="http://weather.fm4dd.com/" title="Weather Station Online"><span>Weather Online</span></a></li>
-    <li><a href="http://fm4dd.com/" class="selected" title="FM4DD Site"><span>FM4DD Home</span></a></li>
-    <li><a href="https://github.com/fm4dd/pi-weather" title="Weather Station Plans"><span>Github Docs</span></a></li>
-  </ul>
-</div>
+
+
+<?php include("./vmenu.htm"); ?>
 
 <div id="content">
 
 <?php
 include("../common.php");
+$station=basename(__DIR__);
 $conf = array();
-$conf = loadConfig(basename(__DIR__));
+$conf = loadConfig($station, $station.".conf");
 // set and adjust the timezone
-$newTZ=trim($conf["pi-weather-tzs"]);
-$newTZ=str_replace('"', '', $newTZ);
-date_default_timezone_set($newTZ);
+date_default_timezone_set($conf["pi-weather-tzs"]);
   
 if(file_exists("images/raspicam.jpg")) {            // check if file exists
   $tstamp = filemtime("images/raspicam.jpg");       // get file modification time
@@ -151,7 +144,7 @@ echo "<tr><td>".$conf["pi-weather-sid"]."</td></tr>\n";
 echo "<tr><th>Sensor Type:</th></tr>\n";
 echo "<tr><td>".$conf["sensor-type"]."</td></tr>\n";
 echo "<tr><th>Time Zone:</th></tr>\n";
-echo "<tr><td>".$newTZ."</td></tr>\n";
+echo "<tr><td>".$conf["pi-weather-tzs"]."</td></tr>\n";
 echo "<tr><th>Station Time:</th></tr>\n";
 echo "<tr><td>".date("H:i:s")."</td></tr>\n";
 echo "<tr><th>GPS Latitude:</th></tr>\n";

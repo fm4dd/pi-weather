@@ -75,7 +75,7 @@ To see individual station data, graphs and details, please klick on the station 
   foreach ($r as $station) {
     // If we want to skip a station, name it here:
     //if($station == "pi-ws03") continue;
-    $conf = loadConfig($station);
+    $conf = loadConfig($station, $station.".conf");
     // get the timezone
     $newTZ=trim($conf["pi-weather-tzs"]);
     $newTZ=str_replace('"', '', $newTZ);
