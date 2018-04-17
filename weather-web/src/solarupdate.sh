@@ -290,6 +290,7 @@ $RRDTOOL graph $PBALPNG -a PNG \
 MVPNLPNG=$IMGPATH/monthly_vpnl.png
 MVBATPNG=$IMGPATH/monthly_vbat.png
 MPBALPNG=$IMGPATH/monthly_pbal.png
+midnight=$(date -d "00:00" +%s)
 
 ##########################################################
 # Check if monthly panel file has already
@@ -331,7 +332,6 @@ fi
 # Check if monthly battery file has already
 # been updated today, otherwise generate.
 ##########################################################
-midnight=$(date -d "00:00" +%s)
 if [ -f $MVBATPNG ]; then FILEAGE=$(date -r $MVBATPNG +%s); fi
 if [ ! -f $MVBATPNG ] || [[ "$FILEAGE" < "$midnight" ]]; then
   echo -n "Creating image $MVBATPNG... "
