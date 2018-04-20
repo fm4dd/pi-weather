@@ -6,7 +6,7 @@ ifndef BINDIR
 	BINDIR="${pi-web-data}/bin"
 endif
 
-ALLBIN=daytcalc outlier momimax
+ALLBIN=daytcalc outlier momimax pvpower
 ALLSH=rrdupdate.sh solarupdate.sh
 
 all: ${ALLBIN}
@@ -38,3 +38,6 @@ outlier: outlier.o
 
 momimax: momimax.o
 	$(CC) momimax.o -o momimax -lrrd
+
+pvpower: pvpower.o
+	$(CC) pvpower.o -o pvpower -lrrd

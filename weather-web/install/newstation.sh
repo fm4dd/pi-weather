@@ -248,7 +248,8 @@ echo "Done."
 echo
 
 echo "##########################################################"
-echo "# 12. Copy $STATION index.php and showlog.php to $HTMLDIR"
+echo "# 12. Copy $STATION index.php, showlog.php and vmenu.htm"
+echo "# to $HTMLDIR"
 echo "##########################################################"
 WEBFILE1=../web/station-index.php
 
@@ -282,6 +283,23 @@ if [ -f $WEBFILE2 ]; then
    ls -l $HTMLDIR/showlog.php
 else
    echo "Could not find $WEBFILE2"
+fi
+
+WEBFILE3=../web/vmenu.htm
+
+if [ -f $WEBFILE3 ]; then
+   echo "Found $WEBFILE3 file, importing."
+   echo "cp $WEBFILE3 $HTMLDIR/vmenu.htm"
+   cp $WEBFILE3 $HTMLDIR/vmenu.htm
+   echo "chown www-data:www-data $HTMLDIR/vmenu.htm"
+   chown www-data:www-data $HTMLDIR/vmenu.htm
+   echo "chmod 644 $HTMLDIR/vmenu.htm"
+   chmod 644 $HTMLDIR/vmenu.htm
+   echo
+   echo "ls -l $HTMLDIR/vmenu.htm"
+   ls -l $HTMLDIR/vmenu.htm
+else
+   echo "Could not find $WEBFILE3"
 fi
 
 echo "Done."

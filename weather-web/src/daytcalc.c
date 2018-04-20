@@ -17,7 +17,7 @@
  * date=2017-02-10 sunrise=6:33  sunset=17:18 daytime=10:33     *
  * ------------------------------------------------------------ */
 /* http://stackoverflow.com/questions/7064531/sunrise-sunset-times-in-c */
-#define _BSD_SOURCE	1
+#define _DEFAULT_SOURCE	1
 #define PI 3.141592
 #define ZENITH -.83
 

@@ -1,6 +1,6 @@
 #!/bin/bash
 ##########################################################
-# solarupdate.sh 20170624 Frank4DD
+# solarupdate.sh 20180324 Frank4DD
 # 
 # This script runs in 1-min intervals through cron. It
 # it processes the received solar data files, creates or
@@ -51,6 +51,7 @@ fi
 echo "Using global cfg [$GLOBALCONFIG]"
 readconfig GLOBALCFG < "$GLOBALCONFIG"
 
+PVPOWER="${GLOBALCFG[pi-web-data]}/bin/pvpower"
 DAYTCALC="${GLOBALCFG[pi-web-data]}/bin/daytcalc"
 RRDTOOL="/usr/bin/rrdtool"
 
@@ -94,7 +95,7 @@ export TZ
 echo "Using timezone [$TZ]"
 
 ##########################################################
-# Check for sensor data file, exit if it doesn't
+# Check for solar data file, exit if it doesn't
 ##########################################################
 SOLARFILE="$VARPATH/solar.txt"
 
@@ -475,6 +476,18 @@ if [ ! -f $YPBALPNG ] || [[ "$FILEAGE" < "$midnight" ]]; then
   GPRINT:pbat:MIN:'Min\: %3.2lf %sW' \
   GPRINT:pbat:MAX:'Max\: %3.2lf %sW' \
   GPRINT:pbat:LAST:'Last\: %3.2lf %sW'
+fi
+
+##########################################################
+# Daily update of the 12-days power generation htm file
+##########################################################
+DAYHTMFILE="${GLOBALCFG[pi-web-html]}/$STATION/daypower.htm"
+
+if [ -f $DAYHTMFILE ]; then FILEAGE=$(date -r $DAYHTMFILE +%s); fi
+if [ ! -f $DAYHTMFILE ] || [[ "$FILEAGE" < "$midnight" ]]; then
+  echo -n "Creating $DAYHTMFILE... "
+  $PVPOWER -s $RRD -d $DAYHTMFILE
+  echo " Done."
 fi
 
 unset TZ
