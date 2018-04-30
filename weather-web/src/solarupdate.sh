@@ -341,6 +341,8 @@ if [ ! -f $MVBATPNG ] || [[ "$FILEAGE" < "$midnight" ]]; then
   --start end-21d --end 00:00 \
   --title='Battery Voltage, 3 Weeks' \
   --x-grid HOUR:8:DAY:1:DAY:1:86400:%d \
+  --alt-autoscale \
+  --lower-limit=12.0 \
   --width=619 \
   --height=77 \
   --border=1  \
@@ -432,6 +434,8 @@ if [ ! -f $YVBATPNG ] || [[ "$FILEAGE" < "$midnight" ]]; then
   --start end-18mon --end 00:00 \
   --x-grid MONTH:1:YEAR:1:MONTH:1:2592000:%b \
   --title='Battery Voltage, Yearly View' \
+  --alt-autoscale \
+  --lower-limit=12.0 \
   --width=619 \
   --height=77 \
   --border=1  \
