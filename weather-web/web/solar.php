@@ -98,6 +98,7 @@ $conf = loadConfig($station, "pi-solar.conf");
 
     <h4>Solar System Images</h4>
       <a href="https://github.com/fm4dd/pi-solar"><img src="images/solar-system-01.jpg" height="160px" width="120px"></a>
+      <a href="https://github.com/fm4dd/pi-solar"><img src="images/solar-system-02.jpg" height="160px" width="120px"></a>
   </div>
 
   <div id="footer">
