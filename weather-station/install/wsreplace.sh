@@ -41,7 +41,7 @@ fi
 echo "OK, the user ID is [$EUID] = `whoami`"
 
 if [ ! -f /usr/bin/sshpass ]; then
-   echo "Error: Cannot find reuired /usr/bin/sshpass"
+   echo "Error: Cannot find required /usr/bin/sshpass"
    exit -1
 fi
 
