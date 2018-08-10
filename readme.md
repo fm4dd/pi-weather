@@ -17,8 +17,6 @@ The weather station started to work in September 2016, and its data can be seen 
 
 Building a weather station around a Raspberry Pi allows to create a system that can long-term operate stand-alone, and has enough CPU power process environmental images in addition to sensor data. The built-in network stack can send collected data into a central consolidation site, and electrical power needs are still within range for small scale solar power. A waterproof switchbox protects the Raspberry, and a wood frame mounts the sensors together with the Raspberry Pi camera.
 
-## Getting Started
-
 The <a href="documentation">documentation</a> directory has the hardware BOM and CAD drawings to build the weather station and the weather display.
 
 The necessary software can be cloned from the branches for the <a href="weather-station">weather station</a>, the optional <a href="weather-display">weather display</a>, and for the Internet accessible <a href="weather-web">website</a> that consolidates multiple weather stations from various time zones.
