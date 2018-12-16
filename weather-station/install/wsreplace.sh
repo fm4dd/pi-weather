@@ -263,7 +263,12 @@ echo "Done."
 echo
 
 echo "##########################################################"
-echo "# 10. Stop remote system, reboot this system to take over."
+echo "# 10. Consider IP address swap in /etc/network/interfaces"
+echo "##########################################################"
+echo
+
+echo "##########################################################"
+echo "# 11. Stop remote system, reboot this system to take over."
 echo "##########################################################"
 echo "ssh pi@$1 \"sudo halt\""
 #sshpass -p $sshpw ssh pi@$1 "sudo halt"
@@ -278,5 +283,13 @@ echo "system power-off"
 
 echo "Done."
 echo
+
+echo "##########################################################"
+echo "# 12. Update SSH IP and/or host key in the Weather Display"
+echo "##########################################################"
+echo "ssh-keygen -f \"/home/pi/.ssh/known_hosts\" -R 192.168.179.244"
+echo "ssh pi@192.168.179.244"
+echo
+echo "End."
 
 ############ end of wsreplace.sh #######################

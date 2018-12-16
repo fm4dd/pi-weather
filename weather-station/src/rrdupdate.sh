@@ -104,6 +104,7 @@ $OUTLIER -s $RRD -d temp -n $TEMP -p $LIMIT
 if [ $? == 1 ]; then
   echo "`date -R` [$SENSORDATA] -> temperature outlier [$TEMP]." >> $LOGPATH/outlier.log
   echo "rrdupdate.sh: Error temperature [$TEMP] is a outlier."
+  TEMP=""
 else
   echo "rrdupdate.sh: Temperature [$TEMP] outlier detection OK."
 fi
@@ -125,6 +126,7 @@ $OUTLIER -s $RRD -d humi -n $HUMI -p $LIMIT
 if [ $? == 1 ]; then
   echo "`date -R` [$SENSORDATA] -> humidity outlier [$HUMI]." >> $LOGPATH/outlier.log
   echo "rrdupdate.sh: Error humidity [$HUMI] is a outlier."
+  HUMI=""
 else
   echo "rrdupdate.sh: Humidity [$HUMI] outlier detection OK."
 fi
@@ -146,6 +148,7 @@ $OUTLIER -s $RRD -d bmpr -n $BMPR -p $LIMIT
 if [ $? == 1 ]; then
   echo "`date -R` [$SENSORDATA] -> pressure outlier [$BMPR]." >> $LOGPATH/outlier.log
   echo "rrdupdate.sh: Error pressure [$BMPR] is a outlier."
+  BMPR=""
 else
   echo "rrdupdate.sh: Pressure [$BMPR] outlier detection OK."
 fi
