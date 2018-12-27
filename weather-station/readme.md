@@ -128,7 +128,7 @@ The weather station is typically part of a private (home) network that allows on
 
 After the Internet web server has been set up, the sensor data is feed to Internet web server in parallel to the local RRD database updates. To compensate for temporary local network outages, a daily transmission sends the full RRD database to the Internet server. 
 
-Because RRD databases are CPU-specific, they can't be copied from a Raspi (ARM) to an Intel environment. For RRD database mgrations, the `rrdtool dump` command creates a XML extract that can be restored to different platforms. For manal DB transmission, below commands serve as an example:
+Because RRD databases are CPU-specific, they can't be copied from a Raspi (ARM) to an Intel environment. For RRD database migrations, the `rrdtool dump` command creates a XML extract that can be restored to different platforms. For manal DB transmission, below commands serve as an example:
 
 - Raspi side
 
