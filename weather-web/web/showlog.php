@@ -33,8 +33,9 @@
 
 <?php
   include("../common.php");
+  $station=basename(__DIR__);
   $conf = array();
-  $conf = loadConfig(basename(__DIR__));
+  $conf = loadConfig($station, $station.".conf");
   // set and adjust the timezone
   $newTZ=trim($conf["pi-weather-tzs"]);
   $newTZ=str_replace('"', '', $newTZ);
