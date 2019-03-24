@@ -3,6 +3,8 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <link rel="stylesheet" type="text/css" href="/style.css" media="screen" />
+<link rel="stylesheet" href="/ol.css">
+<script src="/ol.js"></script>
 <meta name="Title" content="Raspberry Pi Weather Station" />
 <meta name="Description" content="Raspberry Pi Weather Station" />
 <meta name="Keywords" content="Raspberry Pi, Weather Station, fm4dd.com" />
@@ -17,13 +19,10 @@
 #content .titleimg { float: left; height: 100px; width: 133px; margin-right: 10px; )
 </style>
 <title>Raspberry Pi Weather Station</title>
-  <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
-  <script type="text/javascript"> function showMap(station, lat, lng) {
-      var latlng = new google.maps.LatLng(lat, lng);
-      var myOpts = { disableDefaultUI: true, zoom: 8, center: latlng, mapTypeId: google.maps.MapTypeId.TERRAIN };
-      var map = new google.maps.Map(document.getElementById(station+"-map"), myOpts);
-      var marker = new google.maps.Marker({position: latlng, map: map, title: station}); }
-  </script>
+  <script type="text/javascript"> function showMap(station, lat, lon) {
+     var map = new ol.Map({ target: station+"-map", layers: [ new ol.layer.Tile({ source: new ol.source.OSM() }) ],
+         view: new ol.View({ center: ol.proj.fromLonLat([lon, lat]), zoom: 10 }) }); }
+    </script>
 </head>
 
 <body>
@@ -49,7 +48,6 @@ This site is the online frontend to Raspberry Pi powered weather stations. The <
 <p>
 To see individual station data, graphs and details, please klick on the station image below.
 </div>
-</p>
 <?php
   function myscandir($dir, $exp, $how='name', $desc=0) { 
     $r = array(); 
@@ -85,7 +83,7 @@ To see individual station data, graphs and details, please klick on the station 
     // get the last file update time
     $now = time();
     if(file_exists("$station/getsensor.htm")) {         // check if file exists
-      date_default_timezone_set(UTC);
+      date_default_timezone_set("UTC");
       $sensorts = filemtime("$station/getsensor.htm");  // get file modification time
       $dt = new DateTime();                             // create new Date object
       $dt->setTimestamp($sensorts);                     // set Date object to tstamp
@@ -123,7 +121,7 @@ To see individual station data, graphs and details, please klick on the station 
     print "<a href=\"$station\">";
     print "<img class=\"icon\" src=\"$station/images/raspicam.jpg\" alt=\"$station live image\" />\n";
     print "</a>";
-    print "<div class=\"map\" id=\"$station-map\"></div>";
+    print "<div class=\"map\" id=\"$station-map\"></div>\n";
     print "</div>\n";
     print "<script type=\"text/javascript\">showMap(\"$station\", $lat, $lon);</script>";
   }

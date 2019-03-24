@@ -69,7 +69,7 @@ echo
 echo "##########################################################"
 echo "# 4. Install the RRD database tools and development files"
 echo "##########################################################"
-APPLIST="rrdtool librrd4 librrd-dev"
+APPLIST="rrdtool librrd8 librrd-dev"
 EXECUTE="apt-get install $APPLIST -y -q"
 echo "Getting SW packages [$APPLIST]. Please wait ..."
 $EXECUTE
@@ -339,6 +339,11 @@ echo "cp ../web/index.php $HTMLDIR"
 cp ../web/index.php $HTMLDIR
 echo "chmod 644 $HTMLDIR/index.php"
 chmod 644 $HTMLDIR/index.php
+
+echo "cp ../web/ol.* $HTMLDIR"
+cp ../web/ol.* $HTMLDIR
+echo "chmod 644 $HTMLDIR/ol.*"
+chmod 644 $HTMLDIR/ol.*
 
 echo "creating $HTMLDIR/phpinfo.php"
 echo "<?php phpinfo(); ?>" >  $HTMLDIR/phpinfo.php

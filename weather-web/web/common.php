@@ -11,6 +11,8 @@ function loadConfig($station, $conf) {
       if((! preg_match('/^#/', $line)) &&    // show only lines w/o #
          (! preg_match('/^$/', $line))) {    // and who are not empty
          $line_a = explode("=", $line);      // explode at the '=' sign
+         $line_a[1]=trim($line_a[1]);        // remove newline char
+         $line_a[1]=str_replace('"', '', $line_a[1]); // remove ""
          $conf[$line_a[0]] = $line_a[1];     // assign key/values
       }
    }
