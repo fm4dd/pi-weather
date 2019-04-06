@@ -26,7 +26,6 @@
 </head>
 
 <body>
-<div id="wrapper">
 <div id="banner">
 <h1>Pi-Weather Station Online</h1>
 <h2>Raspberry Pi local weather data collection system</h2>
@@ -40,6 +39,7 @@
   </ul>
 </div>
 
+<div id="wrapper">
 <div id="content">
 <p>
 <div>
@@ -85,10 +85,10 @@ To see individual station data, graphs and details, please klick on the station 
     if(file_exists("$station/getsensor.htm")) {         // check if file exists
       date_default_timezone_set("UTC");
       $sensorts = filemtime("$station/getsensor.htm");  // get file modification time
-      $dt = new DateTime();                             // create new Date object
+      $dt = new DateTime;                               // create new Date object
       $dt->setTimestamp($sensorts);                     // set Date object to tstamp
       $output = "Last Station update received ";
-      $output = $output.$dt->format('l F j Y, H:i:s T'); // format output string
+      $output = $output.$dt->format('l F j Y, H:i:s T');// format output string
     }
     else $ouptut = "Could not read last update time from $station/getsensor.htm";
     // Uptime: raspidat.htm -<tr><td>26d:18h:47m:44s</td></tr>
@@ -97,7 +97,7 @@ To see individual station data, graphs and details, please klick on the station 
     preg_match( $pattern, $datfile, $uptime);
     $rrd = getRRD($station);
     $tstamp = filemtime("$station");
-    $dt->setTimestamp($tstamp);                       // set Date object to tstamp
+    $dt->setTimestamp($tstamp);                         // set Date object to tstamp
     $first = $dt->format('M j Y');
     // Check the station is active, e.g. data not older than 10 mins
     $activestr = "(<span style=\"color: #99001F\">Inactive</span>)";
@@ -149,7 +149,7 @@ For more information, contact support[at]frank4dd.com.
   </div>
 
   <div id="footer">
-    <span class="left">&copy; 2017, FM4DD.com</span>
+    <span class="left">&copy; 2019, FM4DD.com</span>
     <span class="right">Raspberry Pi - running Raspbian</span>
   </div>
 </div>

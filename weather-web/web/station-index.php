@@ -20,7 +20,6 @@
 </head>
 
 <body>
-<div id="wrapper">
 <div id="banner">
 <h1>Pi-Weather Station <?php echo basename(__DIR__);  ?></h1>
 <h2>Raspberry Pi local weather data collection system</h2>
@@ -30,6 +29,7 @@
 
 <?php include("./vmenu.htm"); ?>
 
+<div id="wrapper">
 <div id="content">
 
 <?php

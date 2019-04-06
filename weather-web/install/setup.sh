@@ -82,9 +82,9 @@ echo "Done."
 echo
 
 echo "##########################################################"
-echo "# 5. Install data transfer tools: openssh-sftp-server, zip"
+echo "# 5. Add transfer & image tools: openssh-sftp-server, zip"
 echo "##########################################################"
-APPLIST="openssh-sftp-server zip"
+APPLIST="openssh-sftp-server ffmpeg zip"
 EXECUTE="apt-get install $APPLIST -y -q"
 echo "Getting SW packages [$APPLIST]. Please wait ..."
 $EXECUTE
