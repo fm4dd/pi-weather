@@ -59,15 +59,15 @@
   );
   ksort($files);
 
-  $tstamp = filemtime($filename);                   // get file modification time
-  $ft = new DateTime();                             // create new Date object
-  $ft->setTimeStamp($tstamp);                       // set Date object to tstamp
+  if(file_exists($filename)) { $tstamp = filemtime($filename); } // get file modification time
+  $ft = new DateTime();                                          // create new Date object
+  $ft->setTimeStamp($tstamp);                                    // set Date object to tstamp
   $output = "File ".basename($filename)." content, last update ".$ft->format('l F j Y,  H:i:s');  
   echo "<h3>$output</h3>\n";
   echo "<hr />\n";
 
   $alllines = 0;
-  $alllines = count(file($filename)); 
+  if(is_array(file($filename))) { $alllines = count(file($filename)); }
   $output = tail($filename, $showlines);
   if ($output){ 
     echo "<pre class=\"code\">";
