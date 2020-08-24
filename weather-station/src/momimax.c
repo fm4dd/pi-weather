@@ -31,6 +31,7 @@ unsigned long ds_cnt = 0;
 char **ds_namv;
 rrd_value_t *mindata;
 rrd_value_t *maxdata;
+rrd_value_t *avgdata;
 extern char *optarg;
 extern int optind, opterr, optopt;
 static char mon_name[12][3] = { "Jan", "Feb", "Mar", "Apr",
@@ -130,7 +131,7 @@ void parseargs(int argc, char* argv[]) {
 }
 
 void year_headhtml(int year){
-   fprintf(html, "<tr><td colspan=12 class=\"monthhead\">Yearly Maximum Minimum Temperatures</td></tr>\n");
+   fprintf(html, "<tr><td colspan=13 class=\"monthhead\">Yearly Maximum Minimum Average Temperatures</td></tr>\n");
    fprintf(html, "<tr>\n");
 
    /* ------------------------------------------------------------- *
@@ -145,6 +146,10 @@ void year_headhtml(int year){
       if(verbose == 1) printf("Debug: show year=%d\n", show_year);
       fprintf(html, "   <td class=\"monthcell\">%d</td>\n", show_year);
    }
+   /* ------------------------------------------------------------- *
+    *  Create the column with the row legend top right after newest *
+    * ------------------------------------------------------------- */
+   fprintf(html, "   <td class=\"monthcell\" style=\"width: 1%%; white-space: nowrap;\">Year</td>\n");
    fprintf(html, "</tr>\n");
 }
 
@@ -155,6 +160,7 @@ void year_datahtml(int year, time_t ts){
     *  Create the data row for min max values to display            *
     * ------------------------------------------------------------- */
    fprintf(html, "<tr>\n");
+
    for(i = 11; i >= 0; i--) {
       int show_year = year-i;
       /* ------------------------------------------------------------- *
@@ -208,8 +214,12 @@ void year_datahtml(int year, time_t ts){
       if (ret != 0) { printf("Error: cannot fetch data from RRD.\n"); exit(-1); }
       if(verbose == 1) printf("Debug: max rrd_fetch_r return=%d, ds count=%lu\n", ret, ds_cnt);
 
+      ret = rrd_fetch_r(rrdfile, "AVERAGE", &tstart, &tend, &step, &ds_cnt, &ds_namv, &avgdata);
+      if (ret != 0) { printf("Error: cannot fetch data from RRD.\n"); exit(-1); }
+      if(verbose == 1) printf("Debug: avg rrd_fetch_r return=%d, ds count=%lu\n", ret, ds_cnt);
+
       k=0;
-      int days = ((tend - tstart) / 86400)-1;
+      int days = ((tend - tstart) / 86400)-2;
       if(verbose == 1) printf("Debug: result day count=%d\n", days);
 
       /* ------------------------------------------------------------- *
@@ -218,6 +228,7 @@ void year_datahtml(int year, time_t ts){
        * ------------------------------------------------------------- */
       double daymin = DINF;
       double daymax = -1000;
+      double dayavg = 0;
 
       for(j=0; j<(days*ds_cnt); j=j+ds_cnt) {
          k++;
@@ -229,17 +240,30 @@ void year_datahtml(int year, time_t ts){
             if(verbose == 1) printf("Debug: day [%d] value [%d] rrd_fetch_r maxdata=[%s:%.2f]\n", k, j, ds_namv[0], maxdata[j]);
             if(daymax < maxdata[j]) daymax = maxdata[j];
          }
+         if(! isnan(avgdata[j])) {
+            if(verbose == 1) printf("Debug: day [%d] value [%d] rrd_fetch_r avgdata=[%s:%.2f]\n", k, j, ds_namv[0], avgdata[j]);
+            dayavg = dayavg + avgdata[j];
+         }
       }
-      if(daymax != -1000) fprintf(html, "   <td class=\"datacell\">%.1f&deg;C", daymax);
-      else  fprintf(html, "   <td class=\"emptycell\">N/A");
-      fprintf(html, " <br> ");
-      if(! isinf(daymin)) fprintf(html, "%.1f&deg;C</td>\n", daymin);
-      else  fprintf(html, "N/A</td>\n");
+      if(daymax != -1000) {
+         fprintf(html, "   <td class=\"datacell\">%.1f&deg;C", daymax);
+         fprintf(html, " <br> ");
+         if(! isinf(daymin)) fprintf(html, "%.1f&deg;C", daymin);
+         else  fprintf(html, "N/A");
+         fprintf(html, " <br> ");
+         if(dayavg != 0) fprintf(html, "%.1f&deg;C</td>\n", dayavg/days);
+         else  fprintf(html, "N/A</td>\n");
+      }
+      else  fprintf(html, "   <td class=\"emptycell\">N/A</td>\n");
    }
+   /* ------------------------------------------------------------- *
+    *  Create the column with the row legend to the right of newest *
+    * ------------------------------------------------------------- */
+   fprintf(html, "   <td class=\"monthcell\" style=\"width: 1%%; white-space: nowrap;\">Max <br> Min <br> Avg</td>\n");
 }
 
 void month_headhtml(int mon, int year){
-   fprintf(html, "<tr><td colspan=12 class=\"monthhead\">Monthly Maximum Minimum Temperatures</td></tr>\n");
+   fprintf(html, "<tr><td colspan=13 class=\"monthhead\">Monthly Maximum Minimum Average Temperatures</td></tr>\n");
    fprintf(html, "<tr>\n");
 
    /* ------------------------------------------------------------- *
@@ -263,6 +287,10 @@ void month_headhtml(int mon, int year){
       snprintf(yearstr, sizeof(yearstr), "%d", show_year);
       fprintf(html, "   <td class=\"monthcell\">%.3s %s</td>\n", mon_name[show_mon-1], yearstr+2);
    }
+   /* ------------------------------------------------------------- *
+    *  Create the column with the row legend top right after newest *
+    * ------------------------------------------------------------- */
+   fprintf(html, "   <td class=\"monthcell\" style=\"width: 1%%; white-space: nowrap;\">Mon</td>\n");
    fprintf(html, "</tr>\n");
 }
 
@@ -329,8 +357,12 @@ void month_datahtml(int mon, int year, time_t ts){
       if (ret != 0) { printf("Error: cannot fetch data from RRD.\n"); exit(-1); }
       if(verbose == 1) printf("Debug: max rrd_fetch_r return=%d, ds count=%lu\n", ret, ds_cnt);
 
+      ret = rrd_fetch_r(rrdfile, "AVERAGE", &tstart, &tend, &step, &ds_cnt, &ds_namv, &avgdata);
+      if (ret != 0) { printf("Error: cannot fetch data from RRD.\n"); exit(-1); }
+      if(verbose == 1) printf("Debug: avg rrd_fetch_r return=%d, ds count=%lu\n", ret, ds_cnt);
+
       k=0;
-      int days = ((tend - tstart) / 86400)-1;
+      int days = ((tend - tstart) / 86400)-2;
       if(verbose == 1) printf("Debug: result day count=%d\n", days);
 
       /* ------------------------------------------------------------- *
@@ -339,6 +371,7 @@ void month_datahtml(int mon, int year, time_t ts){
        * ------------------------------------------------------------- */
       double daymin = DINF;
       double daymax = -1000;
+      double dayavg = 0;
 
       for(j=0; j<(days*ds_cnt); j=j+ds_cnt) {
          k++;
@@ -350,20 +383,33 @@ void month_datahtml(int mon, int year, time_t ts){
             if(verbose == 1) printf("Debug: day [%d] value [%d] rrd_fetch_r maxdata=[%s:%.2f]\n", k, j, ds_namv[0], maxdata[j]);
             if(daymax < maxdata[j]) daymax = maxdata[j];
          }
+         if(! isnan(avgdata[j])) {
+            if(verbose == 1) printf("Debug: day [%d] value [%d] rrd_fetch_r avgdata=[%s:%.2f]\n", k, j, ds_namv[0], avgdata[j]);
+            dayavg = dayavg + avgdata[j];
+         }
       }
-      if(daymax != -1000) fprintf(html, "   <td class=\"datacell\">%.1f&deg;C", daymax);
-      else  fprintf(html, "   <td class=\"emptycell\">N/A");
-      fprintf(html, " <br> ");
-      if(! isinf(daymin)) fprintf(html, "%.1f&deg;C</td>\n", daymin);
-      else  fprintf(html, "N/A</td>\n");
+      if(daymax != -1000) {
+         fprintf(html, "   <td class=\"datacell\">%.1f&deg;C", daymax);
+         fprintf(html, " <br> ");
+         if(! isinf(daymin)) fprintf(html, "%.1f&deg;C", daymin);
+         else  fprintf(html, "N/A");
+         fprintf(html, " <br> ");
+         if(dayavg != 0) fprintf(html, "%.1f&deg;C</td>\n", dayavg/days);
+         else  fprintf(html, "N/A</td>\n");
+      }
+      else  fprintf(html, "   <td class=\"emptycell\">N/A</td>\n");
    }
+   /* ------------------------------------------------------------- *
+    *  Create the column with the row legend to the right of newest *
+    * ------------------------------------------------------------- */
+   fprintf(html, "   <td class=\"monthcell\" style=\"width: 1%%; white-space: nowrap;\">Max <br> Min <br> Avg</td>\n");
 }
 
 void day_headhtml(time_t tsnow){
    /* ------------------------------------------------------------- *
     * Create html table and main header row                         *
     * ------------------------------------------------------------- */
-   fprintf(html, "<tr><td colspan=12 class=\"monthhead\">Daily Maximum Minimum Temperatures</td></tr>\n");
+   fprintf(html, "<tr><td colspan=13 class=\"monthhead\">Daily Maximum Minimum Average Temperatures</td></tr>\n");
    fprintf(html, "<tr>\n");
 
    /* ------------------------------------------------------------- *
@@ -377,6 +423,10 @@ void day_headhtml(time_t tsnow){
       fprintf(html, "   <td class=\"monthcell\">%.3s %d</td>\n", mon_name[show_tm.tm_mon], show_tm.tm_mday);
       tshow = tshow + 86400;
    }
+   /* ------------------------------------------------------------- *
+    *  Create the column with the row legend top right after newest *
+    * ------------------------------------------------------------- */
+   fprintf(html, "   <td class=\"monthcell\" style=\"width: 1%%; white-space: nowrap;\">Day</td>\n");
    fprintf(html, "</tr>\n");
    if(verbose == 1) printf("Debug: Finished html date row\n");
 }
@@ -428,11 +478,16 @@ void day_datahtml(time_t tsnow) {
    if (ret != 0) { printf("Error: cannot fetch data from RRD.\n"); exit(-1); }
    if(verbose == 1) printf("Debug: max rrd_fetch_r return=%d, ds count=%lu\n", ret, ds_cnt);
 
+   ret = rrd_fetch_r(rrdfile, "AVERAGE", &tstart, &tend, &step, &ds_cnt, &ds_namv, &avgdata);
+   if (ret != 0) { printf("Error: cannot fetch data from RRD.\n"); exit(-1); }
+   if(verbose == 1) printf("Debug: avg rrd_fetch_r return=%d, ds count=%lu\n", ret, ds_cnt);
+
    fprintf(html, "<tr>\n");
 
    int i, j=0, k=0;
       double daymin = DINF;
       double daymax = -1000;
+      double dayavg = 0;
       /* ------------------------------------------------------------- *
        * Go through the returned dataset, and determine min/max values *
        * The set size is 12 days * 24 hours (60 mins) * 4 data sources *
@@ -447,26 +502,35 @@ void day_datahtml(time_t tsnow) {
       if(! isnan(maxdata[i])) {
           if(maxdata[i] > daymax) daymax = maxdata[i];
       }
+      if(! isnan(avgdata[i])) {
+          dayavg = dayavg + avgdata[i];
+      }
       j++;
       if(j==24) {
-         k++; j=0;
+         k++; j=0; dayavg=dayavg/24;
 
-         if(verbose == 1) printf("Debug: day [%2d] %s min [%.2f] max [%.2f]\n",
-                               k-1, ds_namv[0], daymin, daymax);
+         if(verbose == 1) printf("Debug: day [%2d] %s min [%.2f] max [%.2f] avg [%.2f]\n",
+                               k-1, ds_namv[0], daymin, daymax, dayavg);
          /* print the max values before processing the next day */
-         if(daymax != -1000) fprintf(html, "   <td class=\"datacell\">%.1f&deg;C", daymax);
-         else  fprintf(html, "   <td class=\"emptycell\">N/A");
-         fprintf(html, " <br> ");
-
-         /* print the min values before processing the next day */
-         if(! isinf(daymin)) fprintf(html, "%.1f&deg;C</td>\n", daymin);
-         else  fprintf(html, "N/A</td>\n");
+         if(daymax != -1000) {
+            fprintf(html, "   <td class=\"datacell\">%.1f&deg;C", daymax);
+            fprintf(html, " <br> ");
+            if(! isinf(daymin)) fprintf(html, "%.1f&deg;C", daymin);
+            fprintf(html, " <br> ");
+            if(! isinf(dayavg)) fprintf(html, "%.1f&deg;C</td>\n", dayavg);
+         }
+         else  fprintf(html, "   <td class=\"emptycell\">N/A</td>\n");
 
          /* Reset the values before processing the next day */
          daymin = DINF;
          daymax = -1000;
+         dayavg = 0;
       }
    }
+   /* ------------------------------------------------------------- *
+    *  Create the column with the row legend to the right of newest *
+    * ------------------------------------------------------------- */
+   fprintf(html, "   <td class=\"monthcell\" style=\"width: 1%%; white-space: nowrap;\">Max <br> Min <br> Avg</td>\n");
    if(verbose == 1) printf("Debug: Finished html value row\n");
 }
 
