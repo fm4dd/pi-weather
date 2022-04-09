@@ -9,6 +9,7 @@
  *              -p = the GPIO pin nunber of AM2302/DHT22 sensor *
  *              -b,c,d = calibration offset for temp, pressure  *
  *                   and humidity                               *
+ *              -j = write results into JSON file               *
  *              -o = write results into html file               *
  *                                                              *
  * return:      0 on success, and -1 on errors.                 *
@@ -36,7 +37,7 @@ int verbose = 0;
 int outflag = 0;
 char sentype[256];
 char senaddr[256];
-char htmfile[256];
+char outfile[256];
 int sensorpin = 0;
 int tempcalib = 0;
 int humicalib = 0;
@@ -65,12 +66,13 @@ Command line parameters have the following format:\n\
    -b   optional, pressure calibration offset, Example: -b 100\n\
    -c   optional, temperature calibration offset, Example: -c -1\n\
    -d   optional, humidity calibration offset, Example: -d -2\n\
+   -j   optional, write sensor data to JSON file, Example: -j ./getsensor.json\n\
    -o   optional, write sensor data to HTML file, Example: -o ./getsensor.html\n\
    -h   optional, display this message\n\
    -v   optional, enables debug output\n\
 \n\
 Usage examples:\n\
-./getsensor -t bme280 -a 0x76 -b 50 -c -1 -d -2 -o ./getsensor.html -v\n\
+./getsensor -t bme280 -a 0x76 -b 50 -c -1 -d -2 -j ./getsensor.json -v\n\
 ./getsensor -t am2302 -a 0x76 -p 4 -c -1 -o ./getsensor.html -v\n";
    printf(usage);
 }
@@ -84,7 +86,7 @@ void parseargs(int argc, char* argv[]) {
 
    if(argc == 1) { usage(); exit(-1); }
 
-   while ((arg = (int) getopt (argc, argv, "t:a:p:b:c:d:o:vh")) != -1) {
+   while ((arg = (int) getopt (argc, argv, "t:a:p:b:c:d:j:o:vh")) != -1) {
       switch (arg) {
          // arg -t + sensor type, type: string
          // mandatory, example: bme280
@@ -128,12 +130,20 @@ void parseargs(int argc, char* argv[]) {
             humicalib = atoi(optarg);
             break;
 
+         // arg -j + dst JSON file, type: string
+         // optional, example: /tmp/sensor.json
+         case 'j':
+            outflag = 2;
+            if(verbose == 1) printf("Debug: arg -j, value %s\n", optarg);
+            strncpy(outfile, optarg, sizeof(outfile));
+            break;
+
          // arg -o + dst HTML file, type: string
          // optional, example: /tmp/sensor.htm
          case 'o':
             outflag = 1;
             if(verbose == 1) printf("Debug: arg -o, value %s\n", optarg);
-            strncpy(htmfile, optarg, sizeof(htmfile));
+            strncpy(outfile, optarg, sizeof(outfile));
             break;
 
          // arg -v verbose, type: flag, optional
@@ -255,8 +265,8 @@ int main(int argc, char *argv[]) {
        *  Open the html file for writing the table data           *
        * -------------------------------------------------------- */
       FILE *html;
-      if(! (html=fopen(htmfile, "w"))) {
-         printf("Error open %s for writing.\n", htmfile);
+      if(! (html=fopen(outfile, "w"))) {
+         printf("Error open %s for writing.\n", outfile);
          exit(-1);
       }
       fprintf(html, "<table><tr>\n");
@@ -267,6 +277,20 @@ int main(int argc, char *argv[]) {
       fprintf(html, "<td class=\"sensordata\">Barometric Pressure:<span class=\"sensorvalue\">%.2f&thinsp;hPa</span></td>\n", bmpr/100);
       fprintf(html, "</tr></table>\n");
       fclose(html);
+   }
+
+   if(outflag == 2) {
+      /* -------------------------------------------------------- *
+       *  Open the JSON file for writing: { "time": 1649061666,   *
+       *  "temp": 10.94, "humi": 85.91, "pres": 101957.88 }       *
+       * -------------------------------------------------------- */
+      FILE *json;
+      if(! (json=fopen(outfile, "w"))) {
+         printf("Error open %s for writing.\n", outfile);
+         exit(-1);
+      }
+      fprintf(json, "{ \"time\": %lld, \"temp\": %.2f, \"humi\": %.2f, \"pres\": %.2f }", (long long) tsnow, temp, humi, bmpr);
+      fclose(json);
    }
 
    /* ----------------------------------------------------------- *

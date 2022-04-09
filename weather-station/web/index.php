@@ -41,18 +41,30 @@
   echo "</div>\n";
 }
 
-  if(file_exists("getsensor.htm")) {                // check if file exists
-  $tstamp = filemtime("getsensor.htm");             // get file modification time
+  if(file_exists("getsensor.json")) {               // check if file exists
+  $getsensor = file_get_contents("getsensor.json"); // read sensor data from file
+  $sensor_json = json_decode($getsensor, false);    // JSON decode sensor data
   $dt = new DateTime();                             // create new Date object
-  $dt->setTimestamp($tstamp);                       // set Date object to tstamp
+  $dt->setTimestamp($sensor_json->time);            // set Date object to tstamp
   $output = $dt->format('l F j Y, H:i:s');          // format output string
+  $pressure = number_format((float)$sensor_json->pres / 100, 2, '.', '');
   echo "<h3>Date: $output ";
   include("./daytime.htm");
   echo "</h3>\n";
 } ?>
 
 <hr />
-<?php include("./getsensor.htm"); ?>
+<table><tr>
+<td class="sensordata">Air Temperature:<span class="sensorvalue">
+<?php echo "$sensor_json->temp&thinsp;°C"; ?></span></td>
+<td class="sensorspace"></td>
+<td class="sensordata">Relative Humidity:<span class="sensorvalue">
+<?php echo "$sensor_json->humi&thinsp;%"; ?></span></td>
+<td class="sensorspace"></td>
+<td class="sensordata">Barometric Pressure:<span class="sensorvalue">
+<?php echo "$pressure&thinsp;hPa"; ?></span></td>
+</tr></table>
+
 <div class="fullgraph"><img src="images/daily_temp.png" alt="Current Temperature Graph"></div>
 <div class="fullgraph"><img src="images/daily_humi.png" alt="Current Humidity Graph"></div>
 <div class="fullgraph"><img src="images/daily_bmpr.png" alt="Current Pressure Graph"></div>

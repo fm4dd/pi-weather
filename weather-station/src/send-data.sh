@@ -64,11 +64,11 @@ HCALI=${MYCONFIG[pi-weather-hcal]} # humi correction
 
 echo "send-data.sh: Getting sensor data for $STYPE $SADDR";
 if [ "$STYPE" == "bme280" ]; then
-   EXECUTE="$WHOME/bin/getsensor -t $STYPE -a $SADDR -b $PCALI -c $TCALI -d $HCALI -o $WHOME/web/getsensor.htm"
+   EXECUTE="$WHOME/bin/getsensor -t $STYPE -a $SADDR -b $PCALI -c $TCALI -d $HCALI -j $WHOME/web/getsensor.json"
 fi
 if [ "$STYPE" == "am2302" ]; then
    GPIO=${MYCONFIG[sensor-gpio]}    # am2302/dht22 gpio pin number, e.g. 4
-   EXECUTE="$WHOME/bin/getsensor -t $STYPE -a $SADDR -p $GPIO -b $PCALI -c $TCALI -d $HCALI -o $WHOME/web/getsensor.htm"
+   EXECUTE="$WHOME/bin/getsensor -t $STYPE -a $SADDR -p $GPIO -b $PCALI -c $TCALI -d $HCALI -j $WHOME/web/getsensor.json"
 fi
 echo "send-data.sh: $EXECUTE";
 SENSORDATA=`$EXECUTE`
