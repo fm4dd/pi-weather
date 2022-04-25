@@ -5,7 +5,7 @@
 # This script is run via cron in 1-minute intervals. It
 # connects with scp to the local Pi weather station and
 # collects that latest sensor.txt plus the three daily_
-# images containing the latest temperature, humidity and 
+# images containing the latest temperature, humidity and
 # pressure graphs.
 #
 # Before it begins, it decides if the TFT display needs
@@ -20,48 +20,64 @@ HOME="/home/pi/pi-display"
 ##########################################################
 # Get the environment light data, return code from "lux"
 ##########################################################
-$HOME/bin/lux
-LUX=$?
-echo "Brightness (Lux): $LUX"
+#$HOME/bin/lux
+#LUX=$?
+#echo "Brightness (Lux): $LUX"
 
 ##########################################################
-# Get the current TFT display power state 
+# Get the current TFT display power state
 ##########################################################
 DISPLAY=`vcgencmd display_power`
 echo "Display State: $DISPLAY"
 
 ##########################################################
-# Call the 20x4 character LCD control program
+# Update the 20x4 character LCD
 ##########################################################
 python $HOME/bin/sensor.py
 
 ##########################################################
 # If environmental light is low, turn off the TFT display
 ##########################################################
-if [ $LUX -lt 1 ] && [ "$DISPLAY" == "display_power=1" ]; then
-   vcgencmd display_power 0 > /dev/null
-   echo "Start night mode, TFT display off"
-   exit 0
-fi
+#if [ $LUX -lt 1 ] && [ "$DISPLAY" == "display_power=1" ]; then
+#   vcgencmd display_power 0 > /dev/null
+#   echo "Start night mode, TFT display off"
+#   exit 0
+#fi
 
 ##########################################################
 # If environmental light brightens, enable the TFT display
 ##########################################################
-if [ $LUX -ge 1 ] && [ "$DISPLAY" == "display_power=0" ]; then
-   vcgencmd display_power 1 > /dev/null
+#if [ $LUX -ge 1 ] && [ "$DISPLAY" == "display_power=0" ]; then
+#   DISPLAY=`vcgencmd display_power`
+#fi
+
+DISPLAY=`vcgencmd display_power`
+if [ "$DISPLAY" == "display_power=0" ]; then
    echo "Start day mode, TFT display on"
+   vcgencmd display_power 1 > /dev/null
    DISPLAY=`vcgencmd display_power`
 fi
 
 ##########################################################
 # If the TFT display is "on", get data and process images
+# We use a trick to let fbi refresh the image w/o blanking
+# the screen: -t 60 -cachemem 0, and loop over two extra
+# symbolic link alias image files created below.
 ##########################################################
 if [ "$DISPLAY" == "display_power=1"  ]; then
-   scp pi@192.168.179.244:/home/pi/pi-ws01/var/sensor.txt $HOME/var
-   scp pi@192.168.179.244:/home/pi/pi-ws01/web/images/daily_*.png $HOME/var
+   #scp pi@192.168.11.244:/home/pi/pi-ws01/var/sensor.txt $HOME/var
+   scp pi@192.168.11.244:/home/pi/pi-ws01/web/images/daily_*.png $HOME/var
    convert \( $HOME/var/daily_temp.png $HOME/var/daily_humi.png $HOME/var/daily_bmpr.png -append \) +append $HOME/var/out.png
-   kill -HUP $(ps aux | grep '[f]bi' | awk '{print $2}')
-   fbi --autozoom --noverbose -d /dev/fb0 --vt 1 $HOME/var/out.png
+   ln -f -s $HOME/var/out.png $HOME/var/out-a1.png
+   ln -f -s $HOME/var/out.png $HOME/var/out-a2.png
+fi
+
+##########################################################
+# If the TFT display is "on" check if we need to start fbi
+##########################################################
+if [ "$DISPLAY" == "display_power=1" ] && [ ! "$(pidof fbi)" ]; then
+   echo "Starting linux frame buffer fbi"
+   sudo fbi -t 60 -cachemem 0 --autozoom --noverbose -d /dev/fb0 --vt 1 $HOME/var/out.png $HOME/var/out-a1.png $HOME/var/out-a2.png
 fi
 ##########################################################
 # End of display.sh
