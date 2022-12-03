@@ -150,7 +150,7 @@ void parseargs(int argc, char* argv[]) {
          // optional, defaults to system time zone
          case 's':
             if(verbose == 1) printf("Debug: arg -s, value %s\n", optarg);
-            strncpy(tzstring, optarg, sizeof(tzstring));
+            strncpy(tzstring, optarg, sizeof(tzstring)-1);
             setenv("TZ", tzstring, 1);
             tzset();
             time_t tzget = time(NULL);

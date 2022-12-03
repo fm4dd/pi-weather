@@ -58,7 +58,7 @@ char avout_args[256] = AVOUTARGS;     // the output arguments for the video
 char avimg_args[256] = AVIMGARGS;     // the output arguments for the icon
 char avsilencer[256] = AVSILENCE;     // the extra args to prevent avconf output
 char target_day[11];                  // the target day to process (yyyy-mm-dd\0)
-char movie_file[256];                 // the generated movie file
+char movie_file[1024];                // the generated movie file
 int verbose = 0;                      // debug output, default "off"
 extern char *optarg;
 extern int optind, opterr, optopt;
@@ -100,14 +100,14 @@ void parseargs(int argc, char *argv[]) {
          // optional, example: /home/pi/pi-ws03/wcam
          case 'a':
             if(verbose == 1) printf("Debug: arg -a, value %s\n", optarg);
-            strncpy(archi_home, optarg, sizeof(archi_home));
+            strncpy(archi_home, optarg, sizeof(archi_home)-1);
             break;
 
          // arg -f + avconv binary location, type: string
          // optional, example: /usr/bin/avconv
          case 'f':
             if(verbose == 1) printf("Debug: arg -a, value %s\n", optarg);
-            strncpy(avconv_bin, optarg, sizeof(avconv_bin));
+            strncpy(avconv_bin, optarg, sizeof(avconv_bin)-1);
             break;
 
          // arg -d +  day to create the movie for, type: string
@@ -128,7 +128,7 @@ void parseargs(int argc, char *argv[]) {
          // optional, example: /home/pi/pi-ws03/var/yesterday.mp4
          case 'o':
             if(verbose == 1) printf("Debug: arg -o, value %s\n", optarg);
-            strncpy(movie_file, optarg, sizeof(movie_file));
+            strncpy(movie_file, optarg, sizeof(movie_file)-1);
             break;
 
          // arg -v verbose, type: flag, optional
@@ -172,7 +172,7 @@ int filter(const struct dirent *entry) {
 int delete_tmp(char *dir) {
    struct dirent *tmpfile_list;
    DIR *tmp_dir;
-   char file[255];
+   char file[258];
    int i=0;
 
    tmp_dir = opendir(dir);
@@ -180,7 +180,7 @@ int delete_tmp(char *dir) {
       tmpfile_list = readdir(tmp_dir);
       if(tmpfile_list == NULL) break;
       if(strstr(tmpfile_list->d_name, ".jpg")) {
-         snprintf(file, sizeof(file), "%s/%s", dir, tmpfile_list->d_name);
+         snprintf(file, sizeof(file)-1, "%s/%s", dir, tmpfile_list->d_name);
          unlink(file);
          i++;
       }
@@ -196,7 +196,7 @@ int delete_tmp(char *dir) {
  * ---------------------------------------------------------- */
 void origin_zip(char *dir) {
    char cmd[255];
-   snprintf(cmd, sizeof(cmd), "%s -q -m -j %s/wcam-%s %s/*.jpg", ZIPBIN, dir, target_day, dir);
+   snprintf(cmd, sizeof(cmd)-1, "%s -q -m -j %s/wcam-%s %s/*.jpg", ZIPBIN, dir, target_day, dir);
    if(verbose == 1) printf("Debug: cmd [%s]\n", cmd);
    system(cmd);
 }
@@ -280,7 +280,7 @@ int main(int argc, char *argv[]) {
     * ---------------------------------------------------------- */
    int i;
    char buf_day[11];                     /* YYYY/MM/MM + \0 = 11 */
-   char srcimg_dir[255];
+   char srcimg_dir[268];
 
    /* create a tmp day string, replacing '-' with '/' */
    for(i=0; i<=strlen(target_day); i++) {
@@ -289,7 +289,7 @@ int main(int argc, char *argv[]) {
    }
    buf_day[i+1] = '\0';    // terminate the tmp day string
 
-   snprintf(srcimg_dir, sizeof(srcimg_dir), "%s/%s", archi_home, buf_day);
+   snprintf(srcimg_dir, sizeof(srcimg_dir)-1, "%s/%s", archi_home, buf_day);
    if(verbose == 1) printf("Debug: srcimg_dir [%s]\n", srcimg_dir);
 
    /* ---------------------------------------------------------- *
@@ -327,12 +327,12 @@ int main(int argc, char *argv[]) {
     * Create a temporary work directory, check if it can be used *
     * The folder should be under pi-ws01/var, because its tmpfs. *
     * ---------------------------------------------------------- */
-   char tmpdir[255];
+   char tmpdir[271];
    struct stat tmp_stat;
    mode_t mode = 0777 & ~umask(0);
 
    /* Here we track back with ../.. from pi-ws01/web/wcam to var */
-   snprintf(tmpdir, sizeof(tmpdir), "%s/../../var/tmp", archi_home);
+   snprintf(tmpdir, sizeof(tmpdir)-1, "%s/../../var/tmp", archi_home);
 
    if(stat(tmpdir, &tmp_stat) == -1) {
       ret = mkdir(tmpdir, mode);
@@ -353,15 +353,15 @@ int main(int argc, char *argv[]) {
    /* ---------------------------------------------------------- *
     * create image work copies in temporary work directory       *
     * ---------------------------------------------------------- */
-   char arch_file[255];  // e.g. /home/pi/pi-ws03/wcam/2016/09/10/wcam-20160910_181907.jpg
-   char new_file[255];   // e.g. /home/pi/pi-ws03/var/tmp/frame739.jpg
+   char arch_file[525];  // e.g. /home/pi/pi-ws03/wcam/2016/09/10/wcam-20160910_181907.jpg
+   char new_file[294];   // e.g. /home/pi/pi-ws03/var/tmp/frame739.jpg
    struct stat imgstat;  // used to check if the img file size is not zero
-   char system_cmd[512]; // shell command string, needs more than 255 for avconv option list
+   char system_cmd[2048];// shell command string, needs more than 255 for avconv option list
 
    if(verbose == 1) printf("Debug: Copying [%d] img files -> [%s]\n", file_counter, tmpdir);
 
    for(i=0; i<file_counter; i++) {
-      snprintf(arch_file, sizeof(arch_file), "%s/%s", srcimg_dir, imgfile_list[i]->d_name);
+      snprintf(arch_file, sizeof(arch_file)-1, "%s/%s", srcimg_dir, imgfile_list[i]->d_name);
 
       /* ---------------------------------------------------------- *
        * Check if the img file is empty, if so, we skip processing  *
@@ -379,7 +379,7 @@ int main(int argc, char *argv[]) {
       /* ---------------------------------------------------------- *
        * Create the temporary frame image file                      *
        * ---------------------------------------------------------- */
-      snprintf(new_file, sizeof(new_file), "%s/frame%03d.jpg", tmpdir, i-delcounter);
+      snprintf(new_file, sizeof(new_file)-1, "%s/frame%03d.jpg", tmpdir, i-delcounter);
       bytes=filecopy(arch_file, new_file);
       if(verbose == 1) printf("%d ", i);
 
@@ -398,9 +398,9 @@ int main(int argc, char *argv[]) {
       strncpy(time_mn, arch_file+mlen, 2);
       time_mn[2] = '\0';
       char imprint[255];
-      snprintf(imprint, sizeof(imprint), "Pi-Weather %s Time: %s:%s", target_day, time_hr, time_mn);
+      snprintf(imprint, sizeof(imprint)-1, "Pi-Weather %s Time: %s:%s", target_day, time_hr, time_mn);
       //if(verbose == 1) printf("imprint str: %s\n", imprint);
-      snprintf(system_cmd, sizeof(system_cmd), "/usr/bin/mogrify -fill white -undercolor '#00000080' -pointsize 20 -gravity SouthEast -annotate +20+20 '%s' %s", imprint, new_file);
+      snprintf(system_cmd, sizeof(system_cmd)-1, "/usr/bin/mogrify -fill white -undercolor '#00000080' -pointsize 20 -gravity SouthEast -annotate +20+20 '%s' %s", imprint, new_file);
       //if(verbose == 1) printf("system_cmd: %s\n", system_cmd);
       system(system_cmd);
    }
@@ -417,30 +417,30 @@ int main(int argc, char *argv[]) {
    strftime(meta_date, sizeof(meta_date), "creation_time=\"%Y-%m-%d %T\"", localtime(&now));
 
    char meta_title[128];
-   snprintf(meta_title, sizeof(meta_title), "title=\"Pi-Weather %s\"", target_day);
+   snprintf(meta_title, sizeof(meta_title)-1, "title=\"Pi-Weather %s\"", target_day);
 
    /* ---------------------------------------------------------- *
     * generate the movie filename for the avconv video package   *
     * ---------------------------------------------------------- */
-   char mov_file[255];
+   char mov_file[268+11];
    int av_ret;
 
-   snprintf(mov_file, sizeof(mov_file), "%s/wcam-%s.mp4", srcimg_dir, target_day);
+   snprintf(mov_file, sizeof(mov_file)-1, "%s/wcam-%s.mp4", srcimg_dir, target_day);
    if(verbose == 1) printf("Debug: create movie_file 1 [%s]\n", mov_file);
 
    /* ---------------------------------------------------------- *
     * Create the avconv system command with video arguments      *
     * ---------------------------------------------------------- */
-   char cmd_args[512];
-   snprintf(cmd_args, sizeof(cmd_args),
+   char cmd_args[1024];
+   snprintf(cmd_args, sizeof(cmd_args)-1,
             "%s -i %s/frame%%03d.jpg %s -metadata %s -metadata %s",
             avconv_bin, tmpdir, avout_args, meta_date, meta_title);
 
    /* ---------------------------------------------------------- *
     * Unless verbose, add "quiet mode" silencer args to avconv   *
     * ---------------------------------------------------------- */
-   if(verbose == 1) snprintf(system_cmd, sizeof(system_cmd), "%s %s", cmd_args, mov_file);
-   else snprintf(system_cmd, sizeof(system_cmd), "%s %s %s", cmd_args, avsilencer, mov_file);
+   if(verbose == 1) snprintf(system_cmd, sizeof(system_cmd)-1, "%s %s", cmd_args, mov_file);
+   else snprintf(system_cmd, sizeof(system_cmd)-1, "%s %s %s", cmd_args, avsilencer, mov_file);
 
    /* ---------------------------------------------------------- *
     * execute the movie generation                               *
@@ -476,21 +476,21 @@ int main(int argc, char *argv[]) {
    /* ---------------------------------------------------------- *
     * extract the movie's image png, to be used as a web icon    *
     * ---------------------------------------------------------- */
-   char icon_file[255];
+   char icon_file[286];
    int icon_ret;
 
    if(av_ret == 0) { 
-      snprintf(icon_file, sizeof(icon_file), "%s/wcam-%s.png", srcimg_dir, target_day);
+      snprintf(icon_file, sizeof(icon_file)-1, "%s/wcam-%s.png", srcimg_dir, target_day);
       if(verbose == 1) printf("Debug: create icon_file [%s]\n", icon_file);
 
-      snprintf(cmd_args, sizeof(cmd_args), "%s -i %s %s",
+      snprintf(cmd_args, sizeof(cmd_args)-1, "%s -i %s %s",
                     avconv_bin, mov_file, avimg_args);
 
       /* ---------------------------------------------------------- *
        * Unless verbose, add "quiet mode" silencer args to avconv   *
        * ---------------------------------------------------------- */
-      if(verbose == 1) snprintf(system_cmd, sizeof(system_cmd), "%s %s", cmd_args, icon_file);
-      else snprintf(system_cmd, sizeof(system_cmd), "%s %s %s", cmd_args, avsilencer, icon_file);
+      if(verbose == 1) snprintf(system_cmd, sizeof(system_cmd)-1, "%s %s", cmd_args, icon_file);
+      else snprintf(system_cmd, sizeof(system_cmd)-1, "%s %s %s", cmd_args, avsilencer, icon_file);
 
       if(verbose == 1) printf("Debug: system_cmd [%s]\n", system_cmd);
       icon_ret = system(system_cmd);

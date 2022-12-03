@@ -92,14 +92,14 @@ void parseargs(int argc, char* argv[]) {
          // mandatory, example: /opt/raspi/data/am2302.rrd
          case 's':
             if(verbose == 1) printf("Debug: arg -s, value %s\n", optarg);
-            strncpy(rrdfile, optarg, sizeof(rrdfile));
+            strncpy(rrdfile, optarg, sizeof(rrdfile)-1);
             break;
 
          // arg -d + RRD data source name, type: string
          // mandatory, example: temp
          case 'd':
             if(verbose == 1) printf("Debug: arg -d, value %s\n", optarg);
-            strncpy(dsname, optarg, sizeof(dsname));
+            strncpy(dsname, optarg, sizeof(dsname)-1);
             break;
 
          // arg -n + latest sensor value to check on, type: float

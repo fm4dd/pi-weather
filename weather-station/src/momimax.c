@@ -72,7 +72,7 @@ void parseargs(int argc, char* argv[]) {
          // mandatory, example: /opt/raspi/data/weather.rrd
          case 's':
             if(verbose == 1) printf("Debug: arg -s, value %s\n", optarg);
-            strncpy(rrdfile, optarg, sizeof(rrdfile));
+            strncpy(rrdfile, optarg, sizeof(rrdfile)-1);
             break;
 
          // arg -d + dst HTML file, type: string
@@ -80,7 +80,7 @@ void parseargs(int argc, char* argv[]) {
          case 'd':
             outtype = 1;
             if(verbose == 1) printf("Debug: arg -d, value %s\n", optarg);
-            strncpy(htmfile, optarg, sizeof(htmfile));
+            strncpy(htmfile, optarg, sizeof(htmfile)-1);
             break;
 
          // arg -m + dst HTML file, type: string
@@ -88,7 +88,7 @@ void parseargs(int argc, char* argv[]) {
          case 'm':
             outtype = 2;
             if(verbose == 1) printf("Debug: arg -m, value %s\n", optarg);
-            strncpy(htmfile, optarg, sizeof(htmfile));
+            strncpy(htmfile, optarg, sizeof(htmfile)-1);
             break;
 
          // arg -y + dst HTML file, type: string
@@ -96,7 +96,7 @@ void parseargs(int argc, char* argv[]) {
          case 'y':
             outtype = 3;
             if(verbose == 1) printf("Debug: arg -y, value %s\n", optarg);
-            strncpy(htmfile, optarg, sizeof(htmfile));
+            strncpy(htmfile, optarg, sizeof(htmfile)-1);
             break;
 
          // arg -v verbose, type: flag, optional
@@ -173,6 +173,7 @@ void year_datahtml(int year, time_t ts){
       start_tm.tm_hour = 0;
       start_tm.tm_min  = 0;
       start_tm.tm_sec  = 0;
+      start_tm.tm_isdst = 0;
 
       time_t tstart = mktime(&start_tm);
       if(tstart == -1) printf("Error");
@@ -188,6 +189,7 @@ void year_datahtml(int year, time_t ts){
       end_tm.tm_hour = 23;
       end_tm.tm_min  = 59;
       end_tm.tm_sec  = 59;
+      end_tm.tm_isdst = 0;
 
       time_t tend = mktime(&end_tm);
       if(tend == -1) printf("Error creating RRD timerange timestamp tend.");
@@ -316,6 +318,7 @@ void month_datahtml(int mon, int year, time_t ts){
       start_tm.tm_hour = 0;
       start_tm.tm_min  = 0;
       start_tm.tm_sec  = 0;
+      start_tm.tm_isdst = 0;
 
       time_t tstart = mktime(&start_tm);
       if(tstart == -1) printf("Error");
@@ -331,6 +334,7 @@ void month_datahtml(int mon, int year, time_t ts){
       end_tm.tm_hour = 0;
       end_tm.tm_min  = 0;
       end_tm.tm_sec  = -1;
+      end_tm.tm_isdst = 0;
 
       time_t tend = mktime(&end_tm);
       if(tend == -1) printf("Error creating RRD timerange timestamp tend.");

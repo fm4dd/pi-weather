@@ -77,14 +77,14 @@ void parseargs(int argc, char* argv[]) {
          // mandatory, example: pi-ws01/var/raspicam.jpg
          case 'i':
             if(verbose == 1) printf("Debug: arg -i, value %s\n", optarg);
-            strncpy(imgfile, optarg, sizeof(imgfile));
+            strncpy(imgfile, optarg, sizeof(imgfile)-1);
             break;
 
          // arg -d + dst img base dir, type: string
          // mandatory, example: pi-ws01/web/wcam-arch
          case 'd':
             if(verbose == 1) printf("Debug: arg -d, value %s\n", optarg);
-            strncpy(archive, optarg, sizeof(archive));
+            strncpy(archive, optarg, sizeof(archive)-1);
             break;
 
          // arg -s start time, type: int
@@ -162,11 +162,11 @@ int main(int argc, char *argv[]) {
   time_t wcam_tstamp;
   struct stat wcam_stat;
   struct stat arch_stat;
-  char wcam_ydir[256];
-  char wcam_mdir[256];
-  char wcam_ddir[256];
+  char wcam_ydir[261];
+  char wcam_mdir[264];
+  char wcam_ddir[267];
   char wcam_name[26];
-  char newfile[256];
+  char newfile[300];
   mode_t mode;
   char year[5];
   char month[3];
@@ -277,10 +277,10 @@ int main(int argc, char *argv[]) {
           if(verbose == 1) printf("Debug: Found expired image folder [%s]\n", wcam_ddir);
           DIR *reten_dir = opendir(wcam_ddir);
           struct dirent *next_file;
-          char filepath[256];
+          char filepath[1024];
 
           while ((next_file = readdir(reten_dir)) != NULL) {
-            sprintf(filepath, "%s/%s", wcam_ddir, next_file->d_name);
+            snprintf(filepath, sizeof(filepath), "%s/%s", wcam_ddir, next_file->d_name);
             unlink(filepath);
             filecount++;
           }

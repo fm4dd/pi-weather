@@ -92,14 +92,14 @@ void parseargs(int argc, char* argv[]) {
          // mandatory, example: bme280
          case 't':
             if(verbose == 1) printf("Debug: arg -t, value %s\n", optarg);
-            strncpy(sentype, optarg, sizeof(sentype));
+            strncpy(sentype, optarg, sizeof(sentype)-1);
             break;
 
          // arg -a + sensor address, type: string
          // mandatory, example: 0x76
          case 'a':
             if(verbose == 1) printf("Debug: arg -a, value %s\n", optarg);
-            strncpy(senaddr, optarg, sizeof(senaddr));
+            strncpy(senaddr, optarg, sizeof(senaddr)-1);
             break;
 
          // arg -p + sensor pin, type: int
@@ -135,7 +135,7 @@ void parseargs(int argc, char* argv[]) {
          case 'j':
             outflag = 2;
             if(verbose == 1) printf("Debug: arg -j, value %s\n", optarg);
-            strncpy(outfile, optarg, sizeof(outfile));
+            strncpy(outfile, optarg, sizeof(outfile)-1);
             break;
 
          // arg -o + dst HTML file, type: string
@@ -143,7 +143,7 @@ void parseargs(int argc, char* argv[]) {
          case 'o':
             outflag = 1;
             if(verbose == 1) printf("Debug: arg -o, value %s\n", optarg);
-            strncpy(outfile, optarg, sizeof(outfile));
+            strncpy(outfile, optarg, sizeof(outfile)-1);
             break;
 
          // arg -v verbose, type: flag, optional

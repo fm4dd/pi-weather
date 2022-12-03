@@ -63,7 +63,7 @@ MAJOR=`lsb_release -r -s | cut -d "." -f1` # lsb_release -r -s
 MINOR=`lsb_release -r -s | cut -d "." -f2` # returns e.g. "9.4"
 
    echo "Rasbian release check: identified version $MAJOR.$MINOR"
-if (( $MAJOR != 9 )); then
+if (( $MAJOR < 9 )); then
    echo "Error - pi-weather supports Rasbian Stretch Release 9 and up."
    exit 1;
 fi
@@ -98,7 +98,7 @@ echo "##########################################################"
 echo "# 5. Install tools and development headers for the I2C bus" 
 echo "# supporting BME280, BMP180 sensors and I2C RTC modules"
 echo "##########################################################"
-APPLIST="i2c-tools libi2c-dev"
+APPLIST="i2c-tools libi2c-dev sshpass"
 EXECUTE="sudo apt-get install $APPLIST -y -q"
 echo "Getting SW packages [$APPLIST]. Please wait ..."
 $EXECUTE
@@ -126,9 +126,9 @@ echo "Done."
 echo
 
 echo "##########################################################"
-echo "# 7. Install video creation tools: libav, imagemagick, zip"
+echo "# 7. Install video creation tools: ffmpeg, imagemagick, zip"
 echo "##########################################################"
-APPLIST="libav-tools imagemagick zip"
+APPLIST="ffmpeg imagemagick zip"
 EXECUTE="sudo apt-get install $APPLIST -y -q"
 echo "Getting SW packages [$APPLIST]. Please wait ..."
 $EXECUTE
@@ -646,6 +646,26 @@ if [[ $? > 0 ]]; then
 fi
 echo "Done."
 echo
+
+echo "##########################################################"
+echo "# 29. Configure 1st sensor read straight after boot"
+echo "##########################################################"
+GREP=`grep $HOMEDIR/bin/getsensor /etc/rc.local`
+if [[ $? > 0 ]]; then
+   LINE1="##########################################################"
+   sudo sh -c "echo \"$LINE1\" >> /etc/rc.local"
+   LINE2="# pi-weather: query the sensor after boot asap because the"
+   sudo sh -c "echo \"$LINE2\" >> /etc/rc.local"
+   LINE3="# 1st sensor readout is always off and handled as outlier."
+   sudo sh -c "echo \"$LINE3\" >> /etc/rc.local"
+   LINE4="$HOMEDIR/bin/getsensor -t bme280 -a 0x76"
+   sudo sh -c "echo \"$LINE4\" >> /etc/rc.local"
+   echo "Adding 4 lines to /etc/rc.local file:"
+   tail -5 /etc/rc.local
+else
+   echo "Found $HOMEDIR/bin/getsensor line in /etc/rc.local file:"
+   echo "$GREP"
+fi
 
 echo "##########################################################"
 echo "# End of Pi-Weather Installation. Review script output and"
