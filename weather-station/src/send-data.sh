@@ -98,7 +98,7 @@ fi
 # to web/raspicam.jpg
 ##########################################################
 WCAMCHECK=`vcgencmd get_camera`;
-if [ "$WCAMCHECK" == "supported=1 detected=1" ]; then
+if [[ "$WCAMCHECK" == "supported=1 detected=1"* ]]; then
    raspistill -w 640 -h 480 -q 80 -o $WHOME/var/raspicam.jpg
    RET=$?
 else
