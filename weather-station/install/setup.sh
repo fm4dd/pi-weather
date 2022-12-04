@@ -143,7 +143,7 @@ echo
 echo "##########################################################"
 echo "# 8. Install webserver: lighttpd, lighttpd-doc, php-cgi"
 echo "##########################################################"
-APPLIST="lighttpd lighttpd-doc php-cgi php-mbstring"
+APPLIST="lighttpd lighttpd-doc php-cgi php-mbstring rdate"
 EXECUTE="sudo apt-get install $APPLIST -y -q"
 echo "Getting SW packages [$APPLIST]. Please wait ..."
 $EXECUTE
@@ -401,7 +401,28 @@ echo "Done."
 echo
 
 echo "##########################################################"
-echo "# 20. Turn off crontab logging, reduce syslog noise level"
+echo "# 20. Create crontab entry for dayly time sync with rdate"
+echo "##########################################################"
+
+GREP=`grep /usr/sbin/rdate /etc/crontab`
+if [[ $? > 0 ]]; then
+   LINE1="##########################################################"
+   sudo sh -c "echo \"$LINE1\" >> /etc/crontab"
+   LINE2="# pi-weather: Synchronize time daily at midnight"
+   sudo sh -c "echo \"$LINE2\" >> /etc/crontab"
+   LINE3="0  0    * * *   root    /usr/bin/rdate -4ns pool.ntp.org"
+   sudo sh -c "echo \"$LINE3\" >> /etc/crontab"
+   echo "Adding 3 lines to /etc/crontab file:"
+   tail -4 /etc/crontab
+else
+   echo "Found rrdupdate.sh line in /etc/crontab file:"
+   echo "$GREP"
+fi
+echo "Done."
+echo
+
+echo "##########################################################"
+echo "# 21. Turn off crontab logging, reduce syslog noise level"
 echo "##########################################################"
 
 GREP=`grep 'EXTRA_OPTS=\"-L 0\"' /etc/default/cron`
@@ -445,7 +466,7 @@ echo "Done."
 echo
 
 echo "##########################################################"
-echo "# 21. Setting local hostname to Station ID pi-weather-sid"
+echo "# 22. Setting local hostname to Station ID pi-weather-sid"
 echo "##########################################################"
 SID=${MYCONFIG[pi-weather-sid]}
 
@@ -471,7 +492,7 @@ echo "Done."
 echo
 
 echo "##########################################################"
-echo "# 22. Configuring local web server for data visualization"
+echo "# 23. Configuring local web server for data visualization"
 echo "##########################################################"
 SID=${MYCONFIG[pi-weather-sid]}
 
@@ -491,7 +512,7 @@ echo "Done."
 echo
 
 echo "##########################################################"
-echo "# 23. Installing local web server documents and images"
+echo "# 24. Installing local web server documents and images"
 echo "##########################################################"
 for img in ../web/img/*; do
    fbname=$(basename "$img")
@@ -528,7 +549,7 @@ echo "Done."
 echo
 
 echo "##########################################################"
-echo "# 24. Create the SFTP batch files"
+echo "# 25. Create the SFTP batch files"
 echo "##########################################################"
 echo "Create the SFTP batch file for sensor data upload"
 cat <<EOM >$HOMEDIR/etc/sftp-dat.bat
@@ -582,7 +603,7 @@ echo "Done."
 echo
 
 echo "##########################################################"
-echo "# 25. Create crontab entry for daily MP4 file creation"
+echo "# 26. Create crontab entry for daily MP4 file creation"
 echo "##########################################################"
 
 GREP=`grep $HOMEDIR/bin/wcam-mkmovie /etc/crontab`
@@ -603,7 +624,7 @@ echo "Done."
 echo
 
 echo "##########################################################"
-echo "# 26. Create crontab entry for RRD XML and MP4 file upload"
+echo "# 27. Create crontab entry for RRD XML and MP4 file upload"
 echo "##########################################################"
 
 GREP=`grep $HOMEDIR/bin/send-night.sh /etc/crontab`
@@ -624,7 +645,7 @@ echo "Done."
 echo
 
 echo "##########################################################"
-echo "# 27. Power saving: disable HDMI, PWR and ACT LED lights"
+echo "# 28. Power saving: disable HDMI, PWR and ACT LED lights"
 echo "##########################################################"
 ./powersave.sh
 echo "./powersave.sh returned [$?]"
@@ -636,7 +657,7 @@ echo "Done."
 echo
 
 echo "##########################################################"
-echo "# 28. Disable IPv6 protocol support"
+echo "# 29. Disable IPv6 protocol support"
 echo "##########################################################"
 ./disable-ipv6.sh
 echo "./disable-ipv6.sh returned [$?]"
@@ -648,7 +669,7 @@ echo "Done."
 echo
 
 echo "##########################################################"
-echo "# 29. Configure 1st sensor read straight after boot"
+echo "# 30. Configure 1st sensor read straight after boot"
 echo "##########################################################"
 GREP=`grep $HOMEDIR/bin/getsensor /etc/rc.local`
 if [[ $? > 0 ]]; then
