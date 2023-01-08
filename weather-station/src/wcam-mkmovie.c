@@ -1,12 +1,12 @@
 /* ------------------------------------------------------------ *
- * file:	wcam-mkmovie.c v1.3                             *
+ * file:	wcam-mkmovie.c v1.4                             *
  *                                                              *
  * author:	20160911 Frank4DD (fm4dd.com)                   *
  *                                                              *
  * purpose:	This program processes archived and timestamped *
  * 		.jpg images of a day by creating frameXXX.jpg   *
  * 		sequence files in a temp folder. Next it calls  *
- * 		avconv for the conversion to a .mp4 movie and   *
+ * 		ffmpeg for the conversion to a .mp4 movie and   *
  * 		then removes the temporary set of frameXXX.jpg  *
  * 		files. wcam-mkmovie runs from cron once per day *
  *              shortly after midnight. With option -o we get a *
@@ -21,15 +21,16 @@
  *                                                              *
  * v1.0 20050307 initial write                                  *
  * v1.1 20160911 adding cmdline args, time imprint              *
- * v1.2 20170708 switching ffmpeg to avconv, changing tmp dir   *
+ * v1.2 20170708 switching ffmpeg to acconv, changing tmp dir   *
  * v1.3 20170722 adding movie icon creation, 90x68px PNG file   *
+ * v1.4 20230103 switching avconf to ffmpeg per RPI OS bullseye *
  * ------------------------------------------------------------ */
-#define AVCONVBIN "/usr/bin/avconv"
+#define FFMPEGBIN "/usr/bin/ffmpeg"
 #define ZIPBIN    "/usr/bin/zip"
 /* ------------------------------------------------------------ *
  * Define the movie parameters: frame rate, codec, quality, etc *
  * ------------------------------------------------------------ */
-#define AVOUTARGS "-r 25 -vcodec libx264 -qscale:v 3"
+#define AVOUTARGS "-r 25 -c:v libx264 -s 640x480"
 #define AVSILENCE "-nostats -loglevel 0"
 /* ------------------------------------------------------------ *
  * Define the icon image parameters: time offset, size, amount  *
@@ -53,10 +54,10 @@
  * global variables                                             *
  * ------------------------------------------------------------ */
 char archi_home[256];                 // the archived images home directory
-char avconv_bin[256] = AVCONVBIN;     // the path to the avconv program
+char avconv_bin[256] = FFMPEGBIN;     // the path to the ffmpeg program
 char avout_args[256] = AVOUTARGS;     // the output arguments for the video
 char avimg_args[256] = AVIMGARGS;     // the output arguments for the icon
-char avsilencer[256] = AVSILENCE;     // the extra args to prevent avconf output
+char avsilencer[256] = AVSILENCE;     // the extra args to prevent ffmpeg output
 char target_day[11];                  // the target day to process (yyyy-mm-dd\0)
 char movie_file[1024];                // the generated movie file
 int verbose = 0;                      // debug output, default "off"
@@ -70,7 +71,7 @@ void usage() {
    static char const usage[] = "Usage: wcam-mkmovie [OPTIONS]\n\
 Options:\n\
   -a   the path to the archived images (mandatory, e.g. /home/pi/pi-ws03/wcam)\n\
-  -f   the path to the avconv program  (optional, default: " AVCONVBIN ")\n\
+  -f   the path to the ffmpeg program  (optional, default: " FFMPEGBIN ")\n\
   -d   the day to create the movie for (optional, default: yesterday), format yyyy-mm-dd\n\
   -o   the path and name for 2nd movie (optional, e.g. /home/pi/pi-ws03/var/yesterday.mp4)\n\
   -h   print program usage and exit\n\
@@ -103,7 +104,7 @@ void parseargs(int argc, char *argv[]) {
             strncpy(archi_home, optarg, sizeof(archi_home)-1);
             break;
 
-         // arg -f + avconv binary location, type: string
+         // arg -f + ffmpeg binary location, type: string
          // optional, example: /usr/bin/avconv
          case 'f':
             if(verbose == 1) printf("Debug: arg -a, value %s\n", optarg);
@@ -262,11 +263,11 @@ int main(int argc, char *argv[]) {
    }
 
    /* ---------------------------------------------------------- *
-    * Check if the system binaries avconv and zip exist          *
+    * Check if the system binaries ffmpeg and zip exist          *
     * ---------------------------------------------------------- */
    struct stat file_stat;
-   if(stat(AVCONVBIN, &file_stat) == -1) {
-      printf("Error: %s does not exist\n", AVCONVBIN);
+   if(stat(FFMPEGBIN, &file_stat) == -1) {
+      printf("Error: %s does not exist\n", FFMPEGBIN);
       exit(-1);
    }
    if(stat(ZIPBIN, &file_stat) == -1) {
@@ -420,7 +421,7 @@ int main(int argc, char *argv[]) {
    snprintf(meta_title, sizeof(meta_title)-1, "title=\"Pi-Weather %s\"", target_day);
 
    /* ---------------------------------------------------------- *
-    * generate the movie filename for the avconv video package   *
+    * generate the movie filename for the ffmpeg video package   *
     * ---------------------------------------------------------- */
    char mov_file[268+11];
    int av_ret;
@@ -429,7 +430,7 @@ int main(int argc, char *argv[]) {
    if(verbose == 1) printf("Debug: create movie_file 1 [%s]\n", mov_file);
 
    /* ---------------------------------------------------------- *
-    * Create the avconv system command with video arguments      *
+    * Create the ffmpeg system command with video arguments      *
     * ---------------------------------------------------------- */
    char cmd_args[1024];
    snprintf(cmd_args, sizeof(cmd_args)-1,
@@ -437,7 +438,7 @@ int main(int argc, char *argv[]) {
             avconv_bin, tmpdir, avout_args, meta_date, meta_title);
 
    /* ---------------------------------------------------------- *
-    * Unless verbose, add "quiet mode" silencer args to avconv   *
+    * Unless verbose, add "quiet mode" silencer args to ffmpeg   *
     * ---------------------------------------------------------- */
    if(verbose == 1) snprintf(system_cmd, sizeof(system_cmd)-1, "%s %s", cmd_args, mov_file);
    else snprintf(system_cmd, sizeof(system_cmd)-1, "%s %s %s", cmd_args, avsilencer, mov_file);
@@ -448,7 +449,7 @@ int main(int argc, char *argv[]) {
    if(verbose == 1) printf("Debug: system_cmd [%s]\n", system_cmd);
    av_ret = system(system_cmd);
 
-   if(av_ret != 0) printf("Error creating movie_file 1 with avconv, return code %d\n", av_ret);
+   if(av_ret != 0) printf("Error creating movie_file 1 with ffmpeg, return code %d\n", av_ret);
    else if(verbose == 1) printf("Debug: create movie_file 1 completed, return code [%d]\n", av_ret);
 
    /* ---------------------------------------------------------- *
@@ -487,7 +488,7 @@ int main(int argc, char *argv[]) {
                     avconv_bin, mov_file, avimg_args);
 
       /* ---------------------------------------------------------- *
-       * Unless verbose, add "quiet mode" silencer args to avconv   *
+       * Unless verbose, add "quiet mode" silencer args to ffmpeg   *
        * ---------------------------------------------------------- */
       if(verbose == 1) snprintf(system_cmd, sizeof(system_cmd)-1, "%s %s", cmd_args, icon_file);
       else snprintf(system_cmd, sizeof(system_cmd)-1, "%s %s %s", cmd_args, avsilencer, icon_file);
