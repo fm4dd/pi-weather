@@ -98,7 +98,7 @@ echo "##########################################################"
 echo "# 5. Install tools and development headers for the I2C bus" 
 echo "# supporting BME280, BMP180 sensors and I2C RTC modules"
 echo "##########################################################"
-APPLIST="i2c-tools libi2c-dev sshpass"
+APPLIST="i2c-tools libi2c-dev sshpass vim-solarized"
 EXECUTE="sudo apt-get install $APPLIST -y -q"
 echo "Getting SW packages [$APPLIST]. Please wait ..."
 $EXECUTE

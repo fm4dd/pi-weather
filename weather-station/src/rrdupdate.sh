@@ -201,7 +201,10 @@ $RRDTOOL graph $TEMPPNG -a PNG \
   'AREA:dayt2#cfcfcf' \
   'CDEF:tneg1=dayt1,0,GT,NEGINF,UNKN,IF' \
   'AREA:tneg1#cfcfcf' \
-  'AREA:temp1#99001F:Temperature in °C' \
+  'CDEF:tminus=temp1,0.0,LE,temp1,UNKN,IF' \
+  'CDEF:tplus=temp1,0.0,GE,temp1,UNKN,IF' \
+  'AREA:tminus#004477:' \
+  'AREA:tplus#99001F:Temperature in °C' \
   'GPRINT:temp1:MIN:Min\: %3.2lf' \
   'GPRINT:temp1:MAX:Max\: %3.2lf' \
   'GPRINT:temp1:LAST:Last\: %3.2lf'
@@ -283,7 +286,10 @@ if [ ! -f $MTEMPPNG ] || [[ "$FILEAGE" < "$midnight" ]]; then
   --color SHADEA#000000 \
   --color SHADEB#000000 \
   DEF:temp1=$RRD:temp:AVERAGE \
-  'AREA:temp1#99001F:Temperature in °C' \
+  'CDEF:tplus=temp1,0.0,GE,temp1,UNKN,IF' \
+  'CDEF:tminus=temp1,0.0,LE,temp1,UNKN,IF' \
+  'AREA:tplus#99001F:Temperature in °C' \
+  'AREA:tminus#004477:' \
   'GPRINT:temp1:MIN:Min\: %3.2lf' \
   'GPRINT:temp1:MAX:Max\: %3.2lf' \
   'GPRINT:temp1:LAST:Last\: %3.2lf'
@@ -369,7 +375,10 @@ if [ ! -f $YTEMPPNG ] || [[ "$FILEAGE" < "$midnight" ]]; then
   --color SHADEA#000000 \
   --color SHADEB#000000 \
   DEF:temp1=$RRD:temp:AVERAGE \
-  'AREA:temp1#99001F:Temperature in °C' \
+  'CDEF:tplus=temp1,0,GE,temp1,UNKN,IF' \
+  'CDEF:tminus=temp1,0,LE,temp1,UNKN,IF' \
+  'AREA:tplus#99001F:Temperature in °C' \
+  'AREA:tminus#004477:' \
   'GPRINT:temp1:MIN:Min\: %3.2lf' \
   'GPRINT:temp1:MAX:Max\: %3.2lf' \
   'GPRINT:temp1:LAST:Last\: %3.2lf'
@@ -457,7 +466,10 @@ if [ ! -f $TWYTEMPPNG ] || [[ "$FILEAGE" < "$midnight" ]]; then
   --color SHADEA#000000 \
   --color SHADEB#000000 \
   DEF:temp1=$RRD:temp:AVERAGE \
-  'AREA:temp1#99001F:Temperature in °C' \
+  'CDEF:tplus=temp1,0,GE,temp1,UNKN,IF' \
+  'CDEF:tminus=temp1,0,LE,temp1,UNKN,IF' \
+  'AREA:tplus#99001F:Temperature in °C' \
+  'AREA:tminus#004477:' \
   'GPRINT:temp1:MIN:Min\: %3.2lf' \
   'GPRINT:temp1:MAX:Max\: %3.2lf' \
   'GPRINT:temp1:LAST:Last\: %3.2lf'
