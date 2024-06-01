@@ -129,6 +129,7 @@ include("./daymimax.htm");
 <div class="fullgraph"> <img src="images/twyear_temp.png" alt="Temperature Graph"> </div>
 <div class="fullgraph"> <img src="images/twyear_humi.png" alt="Humidity Graph"> </div>
 <div class="fullgraph"> <img src="images/twyear_bmpr.png" alt="Pressure Graph"> </div>
+<?php include("./allmimax.htm"); ?>
 </div>
 </div>
 
@@ -164,7 +165,7 @@ include("./raspidat.htm");
   </div>
 
   <div id="footer">
-    <span class="left">&copy; 2017, FM4DD.com</span>
+    <span class="left">&copy; 2020, FM4DD.com</span>
     <span class="right">Raspberry Pi - running Raspbian</span>
   </div>
 </div>

@@ -96,6 +96,11 @@ fi
 ##########################################################
 # Upload the daily daymimax/momimax.htm tables to server
 ##########################################################
+if [ ! -f $WHOME/var/allmimax.htm ]; then
+   $WHOME/bin/momimax -s $WHOME/rrd/weather.rrd -a $WHOME/var/allmimax.htm
+   echo "`date`: Created $WHOME/var/allmimax.htm"
+fi
+
 if [ ! -f $WHOME/var/yearmimax.htm ]; then
    $WHOME/bin/momimax -s $WHOME/rrd/weather.rrd -y $WHOME/var/yearmimax.htm
    echo "`date`: Created $WHOME/var/yearmimax.htm"
@@ -114,14 +119,15 @@ fi
 if [ -f $WHOME/var/daymimax.htm ]\
    || [ -f $WHOME/var/momimax.htm ]\
    || [ -f $WHOME/var/yearmimax.htm ]; then
-   echo "`date`: Uploading daymimax/momimax/yearmimax to $SFTPDEST"
+   echo "`date`: Uploading day/mo/year/allmimax to $SFTPDEST"
    /usr/bin/sftp -b $WHOME/etc/sftp-htm.bat $SFTPDEST
    echo "`date`: Deleting daymimax/momimax/yearmimax.htm in $WHOME/var"
    rm $WHOME/var/daymimax.htm
    rm $WHOME/var/momimax.htm
    rm $WHOME/var/yearmimax.htm
+   rm $WHOME/var/allmimax.htm
 else
-   echo "`date`: Can't find daymimax/momimax/yearmimax.htm in $WHOME/var"
+   echo "`date`: Can't find day/mo/year/allmimax.htm in $WHOME/var"
 fi
 echo "send-night.sh: Finished `date`"
 ############# end of send-night.sh ########################

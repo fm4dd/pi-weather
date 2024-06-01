@@ -150,6 +150,7 @@ if($filecount == $cycle) {
 <div class="fullgraph"> <img src="images/twyear_temp.png" alt="Temperature Graph"> </div>
 <div class="fullgraph"> <img src="images/twyear_humi.png" alt="Humidity Graph"> </div>
 <div class="fullgraph"> <img src="images/twyear_bmpr.png" alt="Pressure Graph"> </div>
+<?php include("./allmimax.htm"); ?>
 </div>
 </div>
 

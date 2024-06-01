@@ -532,6 +532,19 @@ if [ ! -f $TWYBMPRPNG ] || [[ "$FILEAGE" < "$midnight" ]]; then
 fi
 
 ##########################################################
+# Daily update of the 12-year Min/Max Temperature htm file
+##########################################################
+ALLHTMFILE=$WEBPATH/allmimax.htm
+
+if [ -f $ALLHTMFILE ]; then FILEAGE=$(date -r $ALLHTMFILE +%s); fi
+if [ ! -f $ALLHTMFILE ] || [[ "$FILEAGE" < "$midnight" ]]; then
+  echo -n "Creating $ALLHTMFILE... "
+  $MOMIMAX -s $RRD -a $ALLHTMFILE
+  cp $ALLHTMFILE $VARPATH/allmimax.htm
+  echo " Done."
+fi
+
+##########################################################
 # Daily update of the yearly Min/Max Temperature htm file
 ##########################################################
 YEARHTMFILE=$WEBPATH/yearmimax.htm

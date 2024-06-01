@@ -675,6 +675,29 @@ if [ ! -f $TWYBMPRPNG ] || [[ "$FILEAGE" < "$midnight" ]] || [ -v REPROCESS ]; t
 fi
 
 ##########################################################
+# Daily update of the 12-year Min/Max Temperature htm file
+##########################################################
+ALLSRCFILE=$VARPATH/allmimax.htm
+ALLHTMFILE=$WEBPATH/allmimax.htm
+ALLHTMAGE=0
+ALLSRCAGE=0
+
+if [ ! -f $ALLHTMFILE ] && [ -f $ALLSRCFILE ]; then
+  echo -n "Creating  $ALLHTMFILE... "
+  cp $ALLSRCFILE $ALLHTMFILE
+  echo " Done."
+fi
+
+if [ -f $ALLHTMFILE ]; then ALLHTMAGE=$(date -r $ALLHTMFILE +%s); fi
+if [ -f $ALLSRCFILE ]; then ALLSRCAGE=$(date -r $ALLSRCFILE +%s); fi
+
+if [ -f $ALLHTMFILE ] && [ -f $ALLSRCFILE ] && [ $ALLSRCAGE -gt $ALLHTMAGE ]; then
+  echo -n "Updating  $ALLHTMFILE... "
+  cp $ALLSRCFILE $ALLHTMFILE
+  echo " Done."
+fi
+
+##########################################################
 # Daily update of the yearly Min/Max Temperature htm file
 ##########################################################
 YEARSRCFILE=$VARPATH/yearmimax.htm
