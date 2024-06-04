@@ -243,7 +243,7 @@ void all_datahtml(int year, time_t ts){
             if(verbose == 1) printf("Debug: avg rrd_fetch_r return=%d, ds count=%lu\n", ret, ds_cnt);
 
             k=0;
-            int days = ((tend - tstart) / 86400)-2;
+            int days = ((tend - tstart) / 86400)-3;
             if(verbose == 1) printf("Debug: result day count=%d\n", days);
       
             /* --------------------------------------------------------- *
@@ -379,7 +379,7 @@ void year_datahtml(int year, time_t ts){
       if(verbose == 1) printf("Debug: avg rrd_fetch_r return=%d, ds count=%lu\n", ret, ds_cnt);
 
       k=0;
-      int days = ((tend - tstart) / 86400)-2;
+      int days = ((tend - tstart) / 86400)-3;
       if(verbose == 1) printf("Debug: result day count=%d\n", days);
 
       /* ------------------------------------------------------------- *
@@ -524,7 +524,7 @@ void month_datahtml(int mon, int year, time_t ts){
       if(verbose == 1) printf("Debug: avg rrd_fetch_r return=%d, ds count=%lu\n", ret, ds_cnt);
 
       k=0;
-      int days = ((tend - tstart) / 86400)-2;
+      int days = ((tend - tstart) / 86400)-3;
       if(verbose == 1) printf("Debug: result day count=%d\n", days);
 
       /* ------------------------------------------------------------- *
