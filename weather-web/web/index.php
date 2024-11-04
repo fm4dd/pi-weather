@@ -49,24 +49,24 @@ This site is the online frontend to Raspberry Pi powered weather stations. The <
 To see individual station data, graphs and details, please klick on the station image below.
 </div>
 <?php
-  function myscandir($dir, $exp, $how='name', $desc=0) { 
-    $r = array(); 
-    $dh = @opendir($dir); 
-    if ($dh) { 
-      while (($fname = readdir($dh)) !== false) { 
-        if (preg_match($exp, $fname)) { 
-          $stat = stat("$dir/$fname"); 
-          $r[$fname] = ($how == 'name')? $fname: $stat[$how]; 
-        } 
-      } 
-      closedir($dh); 
-      if ($desc) { arsort($r); } 
-      else { asort($r); } 
-    } 
-    return(array_keys($r)); 
-  } 
+  function myscandir($dir, $exp, $how='name', $desc=0) {
+    $r = array();
+    $dh = @opendir($dir);
+    if ($dh) {
+      while (($fname = readdir($dh)) !== false) {
+        if (preg_match($exp, $fname)) {
+          $stat = stat("$dir/$fname");
+          $r[$fname] = ($how == 'name')? $fname: $stat[$how];
+        }
+      }
+      closedir($dh);
+      if ($desc) { arsort($r); }
+      else { asort($r); }
+    }
+    return(array_keys($r));
+  }
 
-  $r = myscandir('.', '/^pi-ws[0-9]{2}$/i', 'name', 0); 
+  $r = myscandir('.', '/^pi-ws[0-9]{2}$/i', 'name', 0);
 
   $conf = array();
   include("./common.php");
@@ -125,33 +125,19 @@ To see individual station data, graphs and details, please klick on the station 
     print "</div>\n";
     print "<script type=\"text/javascript\">showMap(\"$station\", $lat, $lon);</script>";
   }
-?> 
+?>
 <p>
 For more information, contact support[at]frank4dd.com.
 </div>
 
 <div id="sidecontent">
-<?php
-?>
-    <p>
-    <script type="text/javascript"><!--
-      google_ad_client = "pub-6688183504093504";
-      /* Opensource Software 120x600 */
-      google_ad_slot = "0003115987";
-      google_ad_width = 120;
-      google_ad_height = 600;
-      //-->
-    </script>
-    <script type="text/javascript"
-      src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
-    </script>
-    </p>
-  </div>
+<?php include("./site-advertiser.htm"); ?>
+</div>
 
-  <div id="footer">
-    <span class="left">&copy; 2019, FM4DD.com</span>
-    <span class="right">Raspberry Pi - running Raspbian</span>
-  </div>
+<div id="footer">
+  <span class="left">&copy; 2020, FM4DD.com</span>
+  <span class="right">Raspberry Pi - running Raspbian</span>
+</div>
 </div>
 </body>
 </html>

@@ -36,39 +36,49 @@
   <hr />
   <div class=\"fullgraph"><img src="images/daily_ctmp.png" alt="Current RPI CPU Temperature"></div>
 <?php
-  $default = "../var/send-data.log";
-  $filename = (!isset($_GET['p'])) ? $default : urldecode($_GET['p']);
-  $showlines = (!isset($_GET['lines'])) ? 40 : $_GET['lines'];
+  $logpath = "../log";
+  $varpath = "../var";
 
-  $files = array( 
-    "../var/sensor.txt",
-    "../var/backup.txt",
-    "../var/rrdupdate.log",
-    "../var/send-data.log",
-    "../log/outlier.log",
-    "../log/send-night.log",
-    "../log/wcam-mkmovie.log",
+  $files = array(
+    "$varpath/sensor.txt",
+    "$varpath/backup.txt",
+    "$varpath/rrdupdate.log",
+    "$varpath/send-data.log",
+    "$logpath/outlier.log",
+    "$logpath/send-night.log",
+    "$logpath/wcam-mkmovie.log",
   );
   ksort($files);
 
-  $tstamp = filemtime($filename);       // get file modification time
-  $ft = new DateTime();                             // create new Date object
-  $ft->setTimeStamp($tstamp);                       // set Date object to tstamp
-  $output = "File ".basename($filename).", last update ".$ft->format('l F j Y,  H:i:s');  
-  echo "<h3>$output</h3>\n";
-  echo "<hr />\n";
-
-  $alllines = 0;
-  $alllines = count(file($filename)); 
-  $output = tail($filename, $showlines);
-  if ($output){ 
-    echo "<pre class=\"code\">";
-    echo $output;
-    echo "</pre>";
+  $default = "../var/send-data.log";
+  $finput = (!isset($_GET['p'])) ? "send-data.log" : $_GET['p'];
+  foreach($files as $f){
+    if(str_ends_with($f, $finput)) { $filename = $f; break; };
+    $filename = $default;
   }
+  $showlines = (!isset($_GET['lines'])) ? 40 : $_GET['lines'];
+  $showlines = (!ctype_digit($showlines)) ? 40 : $showlines;
 
-  $gotlines = substr_count( $output, "\n" );
-  echo "Showing last $gotlines lines from file [".realpath($filename)."] ($alllines total lines).";
+  if(file_exists($filename)) {
+    $tstamp = filemtime($filename);                 // get file modification time
+    $ft = new DateTime();                           // create new Date object
+    $ft->setTimeStamp($tstamp);                     // set Date object to tstamp
+    $output = "File ".basename($filename).", last update ".$ft->format('l F j Y,  H:i:s');
+    echo "<h3>$output</h3>\n";
+    echo "<hr />\n";
+
+    $alllines = 0;
+    if(is_array(file($filename))) { $alllines = count(file($filename)); }
+    $output = tail($filename, $showlines);
+    if ($output){
+      echo "<pre class=\"code\">";
+      echo $output;
+      echo "</pre>";
+      $gotlines = substr_count( $output, "\n" );
+      echo "Showing last $gotlines lines from file [".realpath($filename)."] ($alllines total lines).";
+    } // endif endif file is_array(), meaning it has lines
+  } // endif file_exists
+  else  echo "No file found!";
 ?>
 
 </div>
@@ -82,7 +92,7 @@
    foreach($files as $f){
       if(!is_file($f)){ continue; }
       echo "<tr><td>";
-      echo "<a href=\"?p=".urlencode($f)."&lines=".$showlines."\">".basename($f)."</a>";
+      echo "<a href=\"?p=".basename($f)."&lines=".$showlines."\">".basename($f)."</a>";
       echo "</td></tr>\n";
    }
 ?>
@@ -107,7 +117,7 @@
   </div>
 
   <div id="footer">
-    <span class="left">&copy; 2017, FM4DD.com</span>
+    <span class="left">&copy; 2024, FM4DD.com</span>
     <span class="right">Raspberry Pi - running Raspbian</span>
   </div>
 </div>
@@ -151,4 +161,10 @@
    // Close file and return
    fclose($f);
    return $output;
+}
+
+function str_ends_with($haystack, $needle) {
+    $length = strlen($needle);
+    if(!$length) return true;
+    return substr($haystack, -$length) === $needle;
 }

@@ -46,10 +46,7 @@
   $varpath = $datapath."/chroot/".basename(__DIR__)."/var";
   $default = $logpath."/rrd.log";
 
-  $filename = (!isset($_GET['p'])) ? $default : urldecode($_GET['p']);
-  $showlines = (!isset($_GET['lines'])) ? 40 : $_GET['lines'];
-
-  $files = array( 
+  $files = array(
     "$varpath/sensor.txt",
     "$varpath/backup.txt",
     "$logpath/outage.log",
@@ -59,24 +56,34 @@
   );
   ksort($files);
 
-  if(file_exists($filename)) { $tstamp = filemtime($filename); } // get file modification time
-  $ft = new DateTime();                                          // create new Date object
-  $ft->setTimeStamp($tstamp);                                    // set Date object to tstamp
-  $output = "File ".basename($filename)." content, last update ".$ft->format('l F j Y,  H:i:s');  
-  echo "<h3>$output</h3>\n";
-  echo "<hr />\n";
-
-  $alllines = 0;
-  if(is_array(file($filename))) { $alllines = count(file($filename)); }
-  $output = tail($filename, $showlines);
-  if ($output){ 
-    echo "<pre class=\"code\">";
-    echo $output;
-    echo "</pre>";
+  $finput = (!isset($_GET['p'])) ? "rrd.log" : $_GET['p'];
+  foreach($files as $f){
+    if(str_ends_with($f, $finput)) { $filename = $f; break; };
+    $filename = $default;
   }
+  $showlines = (!isset($_GET['lines'])) ? 40 : $_GET['lines'];
+  $showlines = (!ctype_digit($showlines)) ? 40 : $showlines;
 
-  $gotlines = substr_count( $output, "\n" );
-  echo "Showing last $gotlines lines from file [".realpath($filename)."] ($alllines total lines).";
+  if(file_exists($filename)) {
+    $tstamp = filemtime($filename);                                // get file modification time
+    $ft = new DateTime();                                          // create new Date object
+    $ft->setTimeStamp($tstamp);                                    // set Date object to tstamp
+    $output = "File ".basename($filename)." content, last update ".$ft->format('l F j Y,  H:i:s');
+    echo "<h3>$output</h3>\n";
+    echo "<hr />\n";
+
+    $alllines = 0;
+    if(is_array(file($filename))) { $alllines = count(file($filename)); }
+    $output = tail($filename, $showlines);
+    if ($output){
+      echo "<pre class=\"code\">";
+      echo $output;
+      echo "</pre>";
+      $gotlines = substr_count( $output, "\n" );
+      echo "Showing last $gotlines lines from file [".realpath($filename)."] ($alllines total lines).";
+    } // endif file is_array(), meaning it has lines
+  } // endif file_exists
+  else  echo "No file found!";
 ?>
 
 </div>
@@ -90,7 +97,7 @@
    foreach($files as $f){
       if(!is_file($f)){ continue; }
       echo "<tr><td>";
-      echo "<a href=\"?p=".urlencode($f)."&lines=".$showlines."\">".basename($f)."</a>";
+      echo "<a href=\"?p=".basename($f)."&lines=".$showlines."\">".basename($f)."</a>";
       echo "</td></tr>\n";
    }
 ?>
