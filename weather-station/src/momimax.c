@@ -253,6 +253,7 @@ void all_datahtml(int year, time_t ts){
             double daymin = DINF;
             double daymax = -1000;
             double dayavg = 0;
+            int daycnt = 0;
 
             for(j=0; j<(days*ds_cnt); j=j+ds_cnt) {
                k++;
@@ -264,9 +265,15 @@ void all_datahtml(int year, time_t ts){
                   if(verbose == 1) printf("Debug: day [%d] value [%d] rrd_fetch_r maxdata=[%s:%.2f]\n", k, j, ds_namv[0], maxdata[j]);
                   if(daymax < maxdata[j]) daymax = maxdata[j];
                }
+              /* ---------------------------------------------------------------- *
+               * The 'daycnt' variable only counts days when avgdata is not "NaN" *
+               * otherwise the average calculation would be wrong (e.g. lower).   *
+               * ---------------------------------------------------------------- */
                if(! isnan(avgdata[j])) {
                   if(verbose == 1) printf("Debug: day [%d] value [%d] rrd_fetch_r avgdata=[%s:%.2f]\n", k, j, ds_namv[0], avgdata[j]);
                   dayavg = dayavg + avgdata[j];
+                  daycnt++;
+                  if(verbose == 1) printf("Debug: daycnt [%d]\n", daycnt);
                }
             }
             if(daymax != -1000) {
@@ -275,7 +282,7 @@ void all_datahtml(int year, time_t ts){
                if(! isinf(daymin)) fprintf(html, "%.1f&deg;C", daymin);
                else  fprintf(html, "N/A");
                fprintf(html, " <br> ");
-               if(dayavg != 0) fprintf(html, "%.1f&deg;C</td>\n", dayavg/days);
+               if(dayavg != 0) fprintf(html, "%.1f&deg;C</td>\n", dayavg/daycnt);
                else  fprintf(html, "N/A</td>\n");
             }
             else  fprintf(html, "   <td class=\"emptycell\">N/A</td>\n");
@@ -389,6 +396,7 @@ void year_datahtml(int year, time_t ts){
       double daymin = DINF;
       double daymax = -1000;
       double dayavg = 0;
+      int daycnt = 0;
 
       for(j=0; j<(days*ds_cnt); j=j+ds_cnt) {
          k++;
@@ -400,9 +408,15 @@ void year_datahtml(int year, time_t ts){
             if(verbose == 1) printf("Debug: day [%d] value [%d] rrd_fetch_r maxdata=[%s:%.2f]\n", k, j, ds_namv[0], maxdata[j]);
             if(daymax < maxdata[j]) daymax = maxdata[j];
          }
+        /* ---------------------------------------------------------------- *
+         * The 'daycnt' variable only counts days when avgdata is not "NaN" *
+         * otherwise the average calculation would be wrong (e.g. lower).   *
+         * ---------------------------------------------------------------- */
          if(! isnan(avgdata[j])) {
             if(verbose == 1) printf("Debug: day [%d] value [%d] rrd_fetch_r avgdata=[%s:%.2f]\n", k, j, ds_namv[0], avgdata[j]);
             dayavg = dayavg + avgdata[j];
+            daycnt++;
+            if(verbose == 1) printf("Debug: daycnt [%d]\n", daycnt);
          }
       }
       if(daymax != -1000) {
@@ -411,7 +425,7 @@ void year_datahtml(int year, time_t ts){
          if(! isinf(daymin)) fprintf(html, "%.1f&deg;C", daymin);
          else  fprintf(html, "N/A");
          fprintf(html, " <br> ");
-         if(dayavg != 0) fprintf(html, "%.1f&deg;C</td>\n", dayavg/days);
+         if(dayavg != 0) fprintf(html, "%.1f&deg;C</td>\n", dayavg/daycnt);
          else  fprintf(html, "N/A</td>\n");
       }
       else  fprintf(html, "   <td class=\"emptycell\">N/A</td>\n");
@@ -534,6 +548,7 @@ void month_datahtml(int mon, int year, time_t ts){
       double daymin = DINF;
       double daymax = -1000;
       double dayavg = 0;
+      int daycnt = 0;
 
       for(j=0; j<(days*ds_cnt); j=j+ds_cnt) {
          k++;
@@ -545,9 +560,15 @@ void month_datahtml(int mon, int year, time_t ts){
             if(verbose == 1) printf("Debug: day [%d] value [%d] rrd_fetch_r maxdata=[%s:%.2f]\n", k, j, ds_namv[0], maxdata[j]);
             if(daymax < maxdata[j]) daymax = maxdata[j];
          }
+        /* ---------------------------------------------------------------- *
+         * The 'daycnt' variable only counts days when avgdata is not "NaN" *
+         * otherwise the average calculation would be wrong (e.g. lower).   *
+         * ---------------------------------------------------------------- */
          if(! isnan(avgdata[j])) {
             if(verbose == 1) printf("Debug: day [%d] value [%d] rrd_fetch_r avgdata=[%s:%.2f]\n", k, j, ds_namv[0], avgdata[j]);
             dayavg = dayavg + avgdata[j];
+            daycnt++;
+            if(verbose == 1) printf("Debug: daycnt [%d]\n", daycnt);
          }
       }
       if(daymax != -1000) {
@@ -556,7 +577,7 @@ void month_datahtml(int mon, int year, time_t ts){
          if(! isinf(daymin)) fprintf(html, "%.1f&deg;C", daymin);
          else  fprintf(html, "N/A");
          fprintf(html, " <br> ");
-         if(dayavg != 0) fprintf(html, "%.1f&deg;C</td>\n", dayavg/days);
+         if(dayavg != 0) fprintf(html, "%.1f&deg;C</td>\n", dayavg/daycnt);
          else  fprintf(html, "N/A</td>\n");
       }
       else  fprintf(html, "   <td class=\"emptycell\">N/A</td>\n");
