@@ -9,7 +9,8 @@ This project contains the physical build documentation and software for running 
 ## Live Weather URL
 
 The weather station started to work in September 2016, and its data can be seen live at <a href="http://weather.fm4dd.com/">http://weather.fm4dd.com/</a>.
-<img src="documentation\weather-station-v1.1\images\graph-example-temp1.png" height="150px" width="700px">
+
+<img src="documentation\weather-station-v1.1\images\graph-example-temp1.png">
 
 ## Design
 

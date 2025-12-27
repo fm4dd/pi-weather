@@ -24,6 +24,28 @@ CONFIG=$SCRIPTPATH/../etc/pi-weather.conf
 echo "rrdupdate.sh: Config file [$CONFIG]"
 
 ##########################################################
+# RRDtool default parameters for graph image creation
+# --slope-mode -> smoothens the default stair case curves
+# --units-exponent=0 -->No y-axis value scaling (Kilo/Mega)
+# this is only important for hPa not showing as 1.014k
+##########################################################
+GRAPH_PARAMS="
+  --imgformat PNG
+  --no-gridfit
+  --slope-mode
+  --width=1119
+  --height=147
+  --font AXIS:12:
+  --font TITLE:15:
+  --font LEGEND:14:
+  --font WATERMARK:10:
+  --units-exponent=0
+  --border=1
+  --color SHADEA#000000
+  --color SHADEB#000000
+"
+
+##########################################################
 # readconfig() function to read the config file variables
 ##########################################################
 readconfig() {
@@ -186,15 +208,10 @@ HUMIPNG=$IMGPATH/daily_humi.png
 BMPRPNG=$IMGPATH/daily_bmpr.png
 
 echo -n "Creating image $TEMPPNG... "
-$RRDTOOL graph $TEMPPNG -a PNG \
+$RRDTOOL graph $TEMPPNG $GRAPH_PARAMS \
   --start -16h \
   --title='Temperature' \
   --step=60s  \
-  --width=619 \
-  --height=77 \
-  --border=1  \
-  --color SHADEA#000000 \
-  --color SHADEB#000000 \
   DEF:temp1=$RRD:temp:AVERAGE \
   DEF:dayt1=$RRD:dayt:AVERAGE \
   'CDEF:dayt2=dayt1,0,GT,INF,UNKN,IF' \
@@ -210,17 +227,12 @@ $RRDTOOL graph $TEMPPNG -a PNG \
   'GPRINT:temp1:LAST:Last\: %3.2lf'
 
 echo -n "Creating image $HUMIPNG... "
-$RRDTOOL graph $HUMIPNG -a PNG \
+$RRDTOOL graph $HUMIPNG $GRAPH_PARAMS \
   --start -16h \
   --title='Relative Humidity' \
   --step=60s  \
   --upper-limit=100 \
   --lower-limit=0 \
-  --width=619 \
-  --height=77 \
-  --border=1  \
-  --color SHADEA#000000 \
-  --color SHADEB#000000 \
   DEF:humi1=$RRD:humi:AVERAGE \
   DEF:dayt1=$RRD:dayt:AVERAGE \
   'CDEF:dayt2=dayt1,0,GT,INF,UNKN,IF' \
@@ -231,18 +243,12 @@ $RRDTOOL graph $HUMIPNG -a PNG \
   'GPRINT:humi1:LAST:Last\: %3.2lf'
 
 echo -n "Creating image $BMPRPNG... "
-$RRDTOOL graph $BMPRPNG -a PNG \
+$RRDTOOL graph $BMPRPNG $GRAPH_PARAMS \
   --start -16h \
   --title='Barometric Pressure' \
   --step=60s  \
-  --width=619 \
-  --height=77 \
-  --border=1  \
-  --color SHADEA#000000 \
-  --color SHADEB#000000 \
   --alt-autoscale \
   --alt-y-grid \
-  --units-exponent=0 \
   DEF:bmpr1=$RRD:bmpr:AVERAGE \
   DEF:dayt1=$RRD:dayt:AVERAGE \
   'CDEF:bmpr2=bmpr1,100,/' \
@@ -276,15 +282,10 @@ if [ ! -f $MTEMPPNG ] || [[ "$FILEAGE" < "$midnight" ]]; then
   # MTM:MST major grid (Unit:How Many)      #
   # LTM:LST how often labels are placed     #
   # --------------------------------------- #
-  $RRDTOOL graph $MTEMPPNG -a PNG \
+  $RRDTOOL graph $MTEMPPNG $GRAPH_PARAMS \
   --start end-21d --end 00:00 \
   --title='Temperature, 3 Weeks' \
   --x-grid HOUR:8:DAY:1:DAY:1:86400:%d \
-  --width=619 \
-  --height=77 \
-  --border=1  \
-  --color SHADEA#000000 \
-  --color SHADEB#000000 \
   DEF:temp1=$RRD:temp:AVERAGE \
   'CDEF:tplus=temp1,0.0,GE,temp1,UNKN,IF' \
   'CDEF:tminus=temp1,0.0,LE,temp1,UNKN,IF' \
@@ -303,17 +304,12 @@ if [ -f $MHUMIPNG ]; then FILEAGE=$(date -r $MHUMIPNG +%s); fi
 if [ ! -f $MHUMIPNG ] || [[ "$FILEAGE" < "$midnight" ]]; then
   echo -n "Creating image $MHUMIPNG... "
 
-  $RRDTOOL graph $MHUMIPNG -a PNG \
+  $RRDTOOL graph $MHUMIPNG $GRAPH_PARAMS \
   --start end-21d --end 00:00 \
   --title='Relative Humidity, 3 Weeks' \
   --x-grid HOUR:8:DAY:1:DAY:1:86400:%d \
   --upper-limit=100 \
   --lower-limit=0 \
-  --width=619 \
-  --height=77 \
-  --border=1  \
-  --color SHADEA#000000 \
-  --color SHADEB#000000 \
   DEF:humi1=$RRD:humi:AVERAGE \
   'AREA:humi1#004477:Humidity in percent' \
   'GPRINT:humi1:MIN:Min\: %3.2lf' \
@@ -329,18 +325,12 @@ if [ -f $MBMPRPNG ]; then FILEAGE=$(date -r $MBMPRPNG +%s); fi
 if [ ! -f $MBMPRPNG ] || [[ "$FILEAGE" < "$midnight" ]]; then
   echo -n "Creating image $MBMPRPNG... "
 
-  $RRDTOOL graph $MBMPRPNG -a PNG \
+  $RRDTOOL graph $MBMPRPNG $GRAPH_PARAMS \
   --start end-21d --end 00:00 \
   --title='Barometric Pressure, 3 Weeks' \
   --x-grid HOUR:8:DAY:1:DAY:1:86400:%d \
-  --width=619 \
-  --height=77 \
-  --border=1  \
   --alt-autoscale \
   --alt-y-grid \
-  --units-exponent=0 \
-  --color SHADEA#000000 \
-  --color SHADEB#000000 \
   DEF:bmpr1=$RRD:bmpr:AVERAGE \
   'CDEF:bmpr2=bmpr1,100,/' \
   'AREA:bmpr2#007744:Barometric Pressure in hPa' \
@@ -364,16 +354,10 @@ if [ -f $YTEMPPNG ]; then FILEAGE=$(date -r $YTEMPPNG +%s); fi
 if [ ! -f $YTEMPPNG ] || [[ "$FILEAGE" < "$midnight" ]]; then
   echo -n "Creating image $YTEMPPNG... "
 
-  $RRDTOOL graph $YTEMPPNG -a PNG \
+  $RRDTOOL graph $YTEMPPNG $GRAPH_PARAMS \
   --start end-18mon --end 00:00 \
   --x-grid MONTH:1:YEAR:1:MONTH:1:2592000:%b \
   --title='Temperature, Yearly View' \
-  --slope-mode \
-  --width=619 \
-  --height=77 \
-  --border=1  \
-  --color SHADEA#000000 \
-  --color SHADEB#000000 \
   DEF:temp1=$RRD:temp:AVERAGE \
   'CDEF:tplus=temp1,0,GE,temp1,UNKN,IF' \
   'CDEF:tminus=temp1,0,LE,temp1,UNKN,IF' \
@@ -392,18 +376,12 @@ if [ -f $YHUMIPNG ]; then FILEAGE=$(date -r $YHUMIPNG +%s); fi
 if [ ! -f $YHUMIPNG ] || [[ "$FILEAGE" < "$midnight" ]]; then
   echo -n "Creating image $YHUMIPNG... "
 
-  $RRDTOOL graph $YHUMIPNG -a PNG \
+  $RRDTOOL graph $YHUMIPNG $GRAPH_PARAMS \
   --start end-18mon --end 00:00 \
   --x-grid MONTH:1:YEAR:1:MONTH:1:2592000:%b \
   --title='Relative Humidity, Yearly View' \
   --upper-limit=100 \
   --lower-limit=0 \
-  --slope-mode \
-  --width=619 \
-  --height=77 \
-  --border=1  \
-  --color SHADEA#000000 \
-  --color SHADEB#000000 \
   DEF:humi1=$RRD:humi:AVERAGE \
   'AREA:humi1#004477:Humidity in percent' \
   'GPRINT:humi1:MIN:Min\: %3.2lf' \
@@ -419,19 +397,13 @@ if [ -f $YBMPRPNG ]; then FILEAGE=$(date -r $YBMPRPNG +%s); fi
 if [ ! -f $YBMPRPNG ] || [[ "$FILEAGE" < "$midnight" ]]; then
   echo -n "Creating image $YBMPRPNG... "
 
-  $RRDTOOL graph $YBMPRPNG -a PNG \
+  $RRDTOOL graph $YBMPRPNG $GRAPH_PARAMS \
   --start end-18mon --end 00:00 \
   --x-grid MONTH:1:YEAR:1:MONTH:1:2592000:%b \
   --title='Barometric Pressure, Yearly View' \
-  --slope-mode \
-  --width=619 \
-  --height=77 \
-  --border=1  \
   --alt-autoscale \
   --alt-y-grid \
   --units-exponent=0 \
-  --color SHADEA#000000 \
-  --color SHADEB#000000 \
   DEF:bmpr1=$RRD:bmpr:AVERAGE \
   'CDEF:bmpr2=bmpr1,100,/' \
   'AREA:bmpr2#007744:Barometric Pressure in hPa' \
@@ -455,16 +427,10 @@ if [ -f $TWYTEMPPNG ]; then FILEAGE=$(date -r $TWYTEMPPNG +%s); fi
 if [ ! -f $TWYTEMPPNG ] || [[ "$FILEAGE" < "$midnight" ]]; then
   echo -n "Creating image $TWYTEMPPNG... "
 
-  $RRDTOOL graph $TWYTEMPPNG -a PNG \
+  $RRDTOOL graph $TWYTEMPPNG $GRAPH_PARAMS \
   --start end-18years --end 00:00 \
   --x-grid YEAR:1:YEAR:10:YEAR:1:31536000:%Y \
   --title='Temperature, 18-Year View' \
-  --slope-mode \
-  --width=619 \
-  --height=77 \
-  --border=1  \
-  --color SHADEA#000000 \
-  --color SHADEB#000000 \
   DEF:temp1=$RRD:temp:AVERAGE \
   'CDEF:tplus=temp1,0,GE,temp1,UNKN,IF' \
   'CDEF:tminus=temp1,0,LE,temp1,UNKN,IF' \
@@ -483,18 +449,12 @@ if [ -f $TWYHUMIPNG ]; then FILEAGE=$(date -r $TWYHUMIPNG +%s); fi
 if [ ! -f $TWYHUMIPNG ] || [[ "$FILEAGE" < "$midnight" ]]; then
   echo -n "Creating image $TWYHUMIPNG... "
 
-  $RRDTOOL graph $TWYHUMIPNG -a PNG \
+  $RRDTOOL graph $TWYHUMIPNG $GRAPH_PARAMS \
   --start end-18years --end 00:00 \
   --x-grid YEAR:1:YEAR:10:YEAR:1:31536000:%Y \
   --title='Humidity, 18-Year View' \
   --upper-limit=100 \
   --lower-limit=0 \
-  --slope-mode \
-  --width=619 \
-  --height=77 \
-  --border=1  \
-  --color SHADEA#000000 \
-  --color SHADEB#000000 \
   DEF:humi1=$RRD:humi:AVERAGE \
   'AREA:humi1#004477:Humidity in percent' \
   'GPRINT:humi1:MIN:Min\: %3.2lf' \
@@ -510,19 +470,12 @@ if [ -f $TWYBMPRPNG ]; then FILEAGE=$(date -r $TWYBMPRPNG +%s); fi
 if [ ! -f $TWYBMPRPNG ] || [[ "$FILEAGE" < "$midnight" ]]; then
   echo -n "Creating image $TWYBMPRPNG... "
 
-  $RRDTOOL graph $TWYBMPRPNG -a PNG \
+  $RRDTOOL graph $TWYBMPRPNG $GRAPH_PARAMS \
   --start end-18years --end 00:00 \
   --x-grid YEAR:1:YEAR:10:YEAR:1:31536000:%Y \
   --title='Barometric Pressure, 18-Year View' \
-  --slope-mode \
-  --width=619 \
-  --height=77 \
-  --border=1  \
   --alt-autoscale \
   --alt-y-grid \
-  --units-exponent=0 \
-  --color SHADEA#000000 \
-  --color SHADEB#000000 \
   DEF:bmpr1=$RRD:bmpr:AVERAGE \
   'CDEF:bmpr2=bmpr1,100,/' \
   'AREA:bmpr2#007744:Barometric Pressure in hPa' \

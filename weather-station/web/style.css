@@ -237,20 +237,16 @@ body a:visited {
 
 #content .frame {
     width: 700px;
-    height: 510px;
+    height: 515px;
     background-color: #CFCFCF;
     border: 1px solid #000000;
     position: relative;
 }
 
-#content .weatherpic {
-    max-height: 100%;
-    max-width: 100%;
-    width: auto;
-    height: auto;
-    position: absolute; top: 0; bottom: 0; left: 0; right: 0;
-    margin: auto;
-    border: 1px solid #000000;
+#content .weatherpic {         /* img size 660x495 (3:2 format) */
+    width: calc(100% - 40px);  /* frame 20px left + 20px right */
+    height: calc(100% - 20px); /* frame 10px top + 10px bottom */
+    margin: 10px 20px;         /* visually creates the padding */
 }
 
 #content .sensordata {
@@ -340,9 +336,10 @@ body a:visited {
 }
 
 #content .fullgraph {
-    height: 150px;
     margin: 15px 0;
 }
+
+#content .fullgraph img { width: 100%; height: auto; }
 
 #content table { /* t r b l */ margin: 10px 0 10px 0; }
 

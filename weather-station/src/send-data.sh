@@ -68,7 +68,7 @@ if [ "$STYPE" == "bme280" ]; then
 fi
 if [ "$STYPE" == "am2302" ]; then
    GPIO=${MYCONFIG[sensor-gpio]}    # am2302/dht22 gpio pin number, e.g. 4
-   EXECUTE="$WHOME/bin/getsensor -t $STYPE -a $SADDR -p $GPIO -b $PCALI -c $TCALI -d $HCALI -j $WHOME/web/getsensor.json"
+   EXECUTE="$WHOME/bin/getsensor -t $STYPE -a $SADDR -p $GPIO -b $PCALI -c $TCALI -d $HCALI -o $WHOME/web/getsensor.htm"
 fi
 echo "send-data.sh: $EXECUTE";
 SENSORDATA=`$EXECUTE`
@@ -95,15 +95,11 @@ fi
 ##########################################################
 # 2. Check if we got a camera. If yes, take the webcam
 # picture, save it to var/raspicam.jpg, and link a copy
-# to web/raspicam.jpg
+# to web/raspicam.jpg. Image size: 1024x768
 ##########################################################
-WCAMCHECK=`vcgencmd get_camera`;
-if [[ "$WCAMCHECK" == "supported=1 detected=1"* ]]; then
-   raspistill -w 640 -h 480 -q 80 -o $WHOME/var/raspicam.jpg
-   RET=$?
-else
-   echo "send-data.sh: Could not find camera: $WCAMCHECK"
-fi
+echo "send-data.sh:  /usr/bin/rpicam-jpeg --no-raw --immediate --width 1024 --height 768 -o $WHOME/var/raspicam.jpg > /dev/null 2>&1"
+/usr/bin/rpicam-jpeg -n 0 --no-raw --immediate --width 1024 --height 768 -o $WHOME/var/raspicam.jpg > /dev/null 2>&1
+RET=$?
 
 if [ $RET == 0 ]; then
    cp $WHOME/var/raspicam.jpg $WHOME/web/images/raspicam.jpg
@@ -111,7 +107,7 @@ if [ $RET == 0 ]; then
    ls -l $WHOME/var/raspicam.jpg
    ls -l $WHOME/web/images/raspicam.jpg
 else
-   echo "send-data.sh: Error executing raspistill command."
+   echo "send-data.sh: Error executing libcamera-jpeg command."
 fi
 
 ##########################################################
