@@ -55,7 +55,9 @@ body a:visited {
     width: 100%;
     color: #FFFFFF;
     background-color: #004477;
-    background-image:url('../images/logo.gif');
+    background-image: url('/images/logo.gif'); /* Fallback for all browsers */
+    /* Logo for modern browsers, overrides background-image with image-set */
+    background-image: image-set( url('/images/logo.gif') 1x, url('/images/logo2x.gif') 2x, url('/images/logo3x.gif') 3x );
     background-position:98% 50%;
     background-repeat:no-repeat;
 }
