@@ -2,13 +2,11 @@
 
 body {
     background: #EFEFEF;
-    background-position: top;
-    background-repeat: repeat-x;
-    color: #333;
-    margin: .5em;
+    background-color: #f2f2f2;
+    margin: 0;
     padding: 0;
     font-family: Arial,Helvetica,sans-serif;
-    font-size: .8em;
+    font-size: .85em;
 }
 
 body a:visited {
@@ -38,11 +36,12 @@ body a:visited {
 
 #wrapper {
     background: #FCFBE9;
-    border: 1px solid #BBD1E2;
+    border-top: none;
     color: #000;
     margin: 0 auto;
     padding: 12px;
     width: 900px;
+    border: 1px solid #BBD1E2;
 }
 
 /***** Banner *****/
@@ -81,47 +80,43 @@ body a:visited {
 /***** vmenu *****/
 
 #vmenu {
-        width: 100%;
-        height: 30px;
-        margin: 0;
-        padding: 0;
-        background: #000000 url(../images/bgplastic.gif) top left repeat-x;
+    width: 100%;
+    height: 30px;
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(to top, #000000 0%, #1d1d1d 40%, #363636 60%, #555555 70%, #777777 85%, #999999 100%);
 }
 #vmenu ul {
-        list-style: none;
-        margin: 0;
-        padding: 0;
+    list-style: none;
+    margin: 0;
+    padding: 0;
 }
 #vmenu ul li {
-        float: left;
-        margin: 0;
-        padding: 0;
-        background: transparent url(../images/bgplastic-button.gif) top left no-repeat;
-        height: 30px;
+    float: left;
 }
 
 #vmenu a {
-        display: block;
-        float: left;
-        height: 20px;
-        padding-top: 7px;
-        padding-left: 18px;
-        padding-right: 16px;
-        text-transform: uppercase;
-        font-family: "Helvetica Neue",helvetica,"microsoft sans serif",arial,sans-serif;
-        font-size: 85%;
-        color: #FFFFFF;
-        text-decoration: none;
-        text-align: center;
+    display: block;
+    float: left;
+    height: 20px;
+    padding-top: 7px;
+    padding-left: 18px;
+    padding-right: 16px;
+    text-transform: uppercase;
+    font-family: "Helvetica Neue",helvetica,"microsoft sans serif",arial,sans-serif;
+    font-size: 85%;
+    color: #FFFFFF;
+    text-decoration: none;
+    text-align: center;
 }
 
 #vmenu ul li a span.menu_ar {
-        height: 22px;
-        cursor: pointer;
+    height: 22px;
+    cursor: pointer;
 }
 
 #vmenu ul li a:hover {
-        background: transparent url(../images/bgplastic-red.gif) top left no-repeat;
+    background: linear-gradient(to top, #000000 0%, #241010 30%, #2a1212 40%, #271111 50%, #421d1d 60%, #b85959 100%);
 }
 
 #vmenu img {

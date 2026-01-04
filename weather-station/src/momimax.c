@@ -167,9 +167,11 @@ void all_datahtml(int year, time_t ts){
    unsigned long step = 86400;
 
    /* ------------------------------------------------------------- *
-    *  Create the year row for min max values to display            *
+    *  Create the year row for min max values to display, 12 years  *
+    *  This value can be reduced to avoid many rows of "N/A" years  *
+    *  if the weather station is new without having a long history  *
     * ------------------------------------------------------------- */
-   for(h = 0; h<9; h++) {
+   for(h = 0; h<12; h++) { // the 12 is how many years we look back
       int show_year = year-h;
       fprintf(html, "<tr>\n");
 
