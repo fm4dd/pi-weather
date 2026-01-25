@@ -1,20 +1,22 @@
-# Pi Weather Station Software Package
+## Pi Weather Station Software Package
 
 This directory is tagged as a branch, to be cloned or copied into the weather stations Raspberry Pi OS. It contains the scripts for setup, upgrade and maintenance of weather station code and data. The weather station software is a mix of C programs and shell scripts. Data collection is using standard cron entries. RRD is used as the backend database.
 
-## Directory Overview
+## Installer Directory Overview
 
+```
 weather-station/
- |
- +-- backup/ --> (empty) Used to store local configuration and data during software upgrades
- |
- +-- etc/ --> Contains the configuration template, which is the first file that needs to be edited.
- |
- +-- install/ -->Contains the scripts to create and upgrade the station software, or repair data.
- |
- +-- src/ --> Contains C source code for the station software. Compilation and install is done through setup.sh inside the install directory.
- |
- +-- web/ --> Contains the template files for the local website that runs on the weather station. The files are moved into place through setup.sh.
+├── backup/ ................. (empty) Used to store local configuration and data during software upgrades
+│
+├── etc/ .................... Contains the configuration template, which is the first file that needs to be edited.
+│
+├── install/ ................ Contains the scripts to create and upgrade the station software, or repair data.
+│
+├── src/ .................... Contains C source code for the station software.
+│                             Compilation and install is done through setup.sh inside the install directory.
+└── web/ .................... Contains the template files for the local website that runs on the weather station.
+                              The files are moved into place through setup.sh located in the "install" folder.
+ ```
 
 ## Prerequisites
 
@@ -79,6 +81,29 @@ First, create or update the configuration file `pi-weather.conf` in the `etc` di
 *sensor-addr=0x76* --> The sensors I2C address.
 
 Next, change directory into the `install` folder, and execute the script `setup.sh`. The script should run tests to confirm the sensor function. It creates the weather stations work directory named after the station ID, e.g. `pi-ws01`, containing the binaries and data directories.
+
+#### Installed Spplication Folder Structure
+
+```
+pi-ws01/
+├── bin/ .................... [Executables & Shell Scripts]
+│                             (Data processing binaries and .sh scripts)
+├── etc/ .................... [Configuration & Batch Files]
+│                             (System .conf and SFTP transfer .bat files)
+├── log/ .................... [Text Logs]
+│                             (.log files for monitoring background tasks)
+├── rrd/ .................... [Database Files]
+│                             (.rrd files for time-series weather data)
+├── var/ .................... [Data, Compressed XML & Logs]
+│   │                         (Raw .txt data, .xml.gz, and .log files)
+│   └── tmp/ ................ [Temporary Directory]
+└── web/ .................... [Web Application Files]
+    │                         (Web logic .php, templates .htm, and .json)
+    ├── images/ ............. [Visual Assets & Generated Charts]
+    │                         (UI .gif files and sensor .png/.jpg graphs)
+    └── wcam/ ............... [Webcam Directory]
+                              (Sub-folders for webcam media storage)
+```
 
 ## Local Station Operation
 
