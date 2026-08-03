@@ -1,12 +1,13 @@
 include ../etc/pi-weather.conf
 CC=gcc
-CFLAGS= -O3 -Wall -g -Wno-deprecated-declarations
+#CFLAGS= -O3 -Wall -g -Wno-deprecated-declarations
+CFLAGS= -O3 -Wall -g 
 AR=ar
 ifndef BINDIR
 	BINDIR="${pi-weather-dir}/bin"
 endif
 
-ALLBIN=getsensor daytcalc outlier momimax wcam-archive wcam-mkmovie
+ALLBIN=getsensor daytcalc outlier momimax wcam-archive wcam-mkmovie fix-weatherdb
 ALLSH=rrdupdate.sh send-data.sh send-night.sh
 
 all: ${ALLBIN}
@@ -47,3 +48,6 @@ wcam-archive: wcam-archive.o
 
 wcam-mkmovie: wcam-mkmovie.o
 	$(CC) wcam-mkmovie.o -o wcam-mkmovie
+
+fix-weatherdb: fix-weatherdb.o
+	$(CC) fix-weatherdb.o -o fix-weatherdb -lrrd

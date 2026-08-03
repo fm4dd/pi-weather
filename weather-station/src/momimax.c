@@ -167,11 +167,9 @@ void all_datahtml(int year, time_t ts){
    unsigned long step = 86400;
 
    /* ------------------------------------------------------------- *
-    *  Create the year row for min max values to display, 12 years  *
-    *  This value can be reduced to avoid many rows of "N/A" years  *
-    *  if the weather station is new without having a long history  *
+    *  Create the year row for min max values to display            *
     * ------------------------------------------------------------- */
-   for(h = 0; h<12; h++) { // the 12 is how many years we look back
+   for(h = 0; h<12; h++) {
       int show_year = year-h;
       fprintf(html, "<tr>\n");
 
@@ -192,7 +190,7 @@ void all_datahtml(int year, time_t ts){
          start_tm.tm_min  = 0;
          start_tm.tm_sec  = 0;
          start_tm.tm_isdst = 0;
-   
+
          time_t tstart = mktime(&start_tm);
          if(tstart == -1) printf("Error");
          if(verbose == 1) printf("Debug: ts=%lld start date=%s", (long long) tstart, ctime(&tstart));
@@ -208,12 +206,18 @@ void all_datahtml(int year, time_t ts){
          end_tm.tm_min  = 0;
          end_tm.tm_sec  = -1;
          end_tm.tm_isdst = 0;
-   
+
          time_t tend = mktime(&end_tm);
          if(tend == -1) printf("Error creating RRD timerange timestamp tend.");
          if(tstart < ts  && ts < tend) tend = ts; // if we are at the current month, end at now time
          if(verbose == 1) printf("Debug: ts=%lld end date=%s", (long long) tend, ctime(&tend));
-   
+
+            /* capture the ORIGINALLY intended boundaries before rrd_fetch_r()
+             * mutates tstart/tend in place - these are what we filter returned
+             * rows against below, instead of guessing a row-count correction. */
+            time_t want_start = tstart;
+            time_t want_end   = tend;
+
          /* ---------------------------------------------------------- *
           * In the current year, we cannot see data from the future... *
           * ---------------------------------------------------------- */
@@ -235,44 +239,60 @@ void all_datahtml(int year, time_t ts){
             int ret = rrd_fetch_r(rrdfile, "MIN", &tstart, &tend, &step, &ds_cnt, &ds_namv, &mindata);
             if (ret != 0) { printf("Error: cannot fetch data from RRD.\n"); exit(-1); }
             if(verbose == 1) printf("Debug: min rrd_fetch_r return=%d, ds count=%lu\n", ret, ds_cnt);
-      
+
             ret = rrd_fetch_r(rrdfile, "MAX", &tstart, &tend, &step, &ds_cnt, &ds_namv, &maxdata);
             if (ret != 0) { printf("Error: cannot fetch data from RRD.\n"); exit(-1); }
             if(verbose == 1) printf("Debug: max rrd_fetch_r return=%d, ds count=%lu\n", ret, ds_cnt);
-      
+
             ret = rrd_fetch_r(rrdfile, "AVERAGE", &tstart, &tend, &step, &ds_cnt, &ds_namv, &avgdata);
             if (ret != 0) { printf("Error: cannot fetch data from RRD.\n"); exit(-1); }
             if(verbose == 1) printf("Debug: avg rrd_fetch_r return=%d, ds count=%lu\n", ret, ds_cnt);
 
             k=0;
-            int days = ((tend - tstart) / 86400)-3;
-            if(verbose == 1) printf("Debug: result day count=%d\n", days);
-      
-            /* --------------------------------------------------------- *
-             * Go through the returned dataset, determine min/max values *
-             * for temperature. This is the first data src in ds_namv[0].*
-             * --------------------------------------------------------- */
+            /* Number of rows rrdtool ACTUALLY returned, using the step it
+             * reports back (not a hardcoded 86400) - rrd_fetch_r() rounds
+             * tstart/tend out to archive row boundaries, so this can (and
+             * regularly does) include a few trailing rows that spill past
+             * want_end (into next month, or the future). Rather than guess
+             * a fixed number of rows to drop, filter each row by its own
+             * real timestamp against the boundaries we actually wanted. */
+            long total_rows = (tend - tstart) / step;
+            if(verbose == 1) printf("Debug: rrdtool returned %ld raw rows for this range\n", total_rows);
+
+            /* ------------------------------------------------------------- *
+             * Go through the returned dataset, determine min/max values     *
+             * for temperature. This is the first data src in ds_namv[0].    *
+             * ------------------------------------------------------------- */
             double daymin = DINF;
             double daymax = -1000;
             double dayavg = 0;
             int daycnt = 0;
 
-            for(j=0; j<(days*ds_cnt); j=j+ds_cnt) {
+            for(long row=0; row<total_rows; row++) {
+               /* RRD labels a row with the timestamp at the END of the
+                * interval it covers - so July 31st's row is timestamped
+                * exactly Aug 1st 00:00:00. Compare against the interval's
+                * START instead, or the last real day of every month would
+                * be excluded as if it belonged to the next one. */
+               time_t row_ts    = tstart + (row+1)*(time_t)step;
+               time_t row_start = row_ts - (time_t)step;
+               if(row_start < want_start || row_start > want_end) continue;
+               j = row*ds_cnt;
                k++;
                if(! isnan(mindata[j])) {
-                  if(verbose == 1) printf("Debug: day [%d] value [%d] rrd_fetch_r mindata=[%s:%.2f]\n", k, j, ds_namv[0], mindata[j]);
+                  if(verbose == 1) printf("Debug: day [%d] value [%d] rrd_fetch_r mindata=[%s:%.2f]\n", k, (int)j, ds_namv[0], mindata[j]);
                   if(daymin > mindata[j]) daymin = mindata[j];
                }
                if(! isnan(maxdata[j])) {
-                  if(verbose == 1) printf("Debug: day [%d] value [%d] rrd_fetch_r maxdata=[%s:%.2f]\n", k, j, ds_namv[0], maxdata[j]);
+                  if(verbose == 1) printf("Debug: day [%d] value [%d] rrd_fetch_r maxdata=[%s:%.2f]\n", k, (int)j, ds_namv[0], maxdata[j]);
                   if(daymax < maxdata[j]) daymax = maxdata[j];
                }
-              /* ---------------------------------------------------------------- *
+              /* -----------------------------------------------------------------*
                * The 'daycnt' variable only counts days when avgdata is not "NaN" *
                * otherwise the average calculation would be wrong (e.g. lower).   *
-               * ---------------------------------------------------------------- */
+               * -----------------------------------------------------------------*/
                if(! isnan(avgdata[j])) {
-                  if(verbose == 1) printf("Debug: day [%d] value [%d] rrd_fetch_r avgdata=[%s:%.2f]\n", k, j, ds_namv[0], avgdata[j]);
+                  if(verbose == 1) printf("Debug: day [%d] value [%d] rrd_fetch_r avgdata=[%s:%.2f]\n", k, (int)j, ds_namv[0], avgdata[j]);
                   dayavg = dayavg + avgdata[j];
                   daycnt++;
                   if(verbose == 1) printf("Debug: daycnt [%d]\n", daycnt);
@@ -363,6 +383,12 @@ void year_datahtml(int year, time_t ts){
       if(tend > ts) tend = ts; // if we are at the current date, end at now time
       if(verbose == 1) printf("Debug: ts=%lld end date=%s", (long long) tend, ctime(&tend));
 
+      /* capture the ORIGINALLY intended boundaries before rrd_fetch_r()
+       * mutates tstart/tend in place - these are what we filter returned
+       * rows against below, instead of guessing a row-count correction. */
+      time_t want_start = tstart;
+      time_t want_end   = tend;
+
       /* ------------------------------------------------------------- *
        * rrd_fetch_r() gets all RRD values for a specific time range.  *
        * 8x function args: 5x input, 3x output. Returns 0 for success. *
@@ -388,8 +414,14 @@ void year_datahtml(int year, time_t ts){
       if(verbose == 1) printf("Debug: avg rrd_fetch_r return=%d, ds count=%lu\n", ret, ds_cnt);
 
       k=0;
-      int days = ((tend - tstart) / 86400)-3;
-      if(verbose == 1) printf("Debug: result day count=%d\n", days);
+      /* Number of rows rrdtool ACTUALLY returned, using the step it reports
+       * back (not a hardcoded 86400) - rrd_fetch_r() rounds tstart/tend out
+       * to archive row boundaries, so this can (and regularly does) include
+       * a few trailing rows spilling past want_end (next month/year, or the
+       * future). Rather than guess a fixed number of rows to drop, filter
+       * each row by its own real timestamp against what we actually wanted. */
+      long total_rows = (tend - tstart) / step;
+      if(verbose == 1) printf("Debug: rrdtool returned %ld raw rows for this range\n", total_rows);
 
       /* ------------------------------------------------------------- *
        * Go through the returned dataset, and determine min/max values *
@@ -400,22 +432,31 @@ void year_datahtml(int year, time_t ts){
       double dayavg = 0;
       int daycnt = 0;
 
-      for(j=0; j<(days*ds_cnt); j=j+ds_cnt) {
+      for(long row=0; row<total_rows; row++) {
+         /* RRD labels a row with the timestamp at the END of the
+          * interval it covers - so July 31st's row is timestamped exactly
+          * Aug 1st 00:00:00. Compare against the interval's START instead,
+          * or the last real day of every month would be excluded as if it
+          * belonged to the next one. */
+         time_t row_ts    = tstart + (row+1)*(time_t)step;
+         time_t row_start = row_ts - (time_t)step;
+         if(row_start < want_start || row_start > want_end) continue;
+         j = row*ds_cnt;
          k++;
          if(! isnan(mindata[j])) {
-            if(verbose == 1) printf("Debug: day [%d] value [%d] rrd_fetch_r mindata=[%s:%.2f]\n", k, j, ds_namv[0], mindata[j]);
+            if(verbose == 1) printf("Debug: day [%d] value [%d] rrd_fetch_r mindata=[%s:%.2f]\n", k, (int)j, ds_namv[0], mindata[j]);
             if(daymin > mindata[j]) daymin = mindata[j];
          }
          if(! isnan(maxdata[j])) {
-            if(verbose == 1) printf("Debug: day [%d] value [%d] rrd_fetch_r maxdata=[%s:%.2f]\n", k, j, ds_namv[0], maxdata[j]);
+            if(verbose == 1) printf("Debug: day [%d] value [%d] rrd_fetch_r maxdata=[%s:%.2f]\n", k, (int)j, ds_namv[0], maxdata[j]);
             if(daymax < maxdata[j]) daymax = maxdata[j];
          }
-        /* ---------------------------------------------------------------- *
+        /* -----------------------------------------------------------------*
          * The 'daycnt' variable only counts days when avgdata is not "NaN" *
          * otherwise the average calculation would be wrong (e.g. lower).   *
-         * ---------------------------------------------------------------- */
+         * -----------------------------------------------------------------*/
          if(! isnan(avgdata[j])) {
-            if(verbose == 1) printf("Debug: day [%d] value [%d] rrd_fetch_r avgdata=[%s:%.2f]\n", k, j, ds_namv[0], avgdata[j]);
+            if(verbose == 1) printf("Debug: day [%d] value [%d] rrd_fetch_r avgdata=[%s:%.2f]\n", k, (int)j, ds_namv[0], avgdata[j]);
             dayavg = dayavg + avgdata[j];
             daycnt++;
             if(verbose == 1) printf("Debug: daycnt [%d]\n", daycnt);
@@ -515,6 +556,12 @@ void month_datahtml(int mon, int year, time_t ts){
       if(tend > ts) tend = ts; // if we are at the current month, end at now time
       if(verbose == 1) printf("Debug: ts=%lld end date=%s", (long long) tend, ctime(&tend));
 
+      /* capture the ORIGINALLY intended boundaries before rrd_fetch_r()
+       * mutates tstart/tend in place - these are what we filter returned
+       * rows against below, instead of guessing a row-count correction. */
+      time_t want_start = tstart;
+      time_t want_end   = tend;
+
       /* ------------------------------------------------------------- *
        * rrd_fetch_r() gets all RRD values for a specific time range.  *
        * 8x function args: 5x input, 3x output. Returns 0 for success. *
@@ -540,8 +587,14 @@ void month_datahtml(int mon, int year, time_t ts){
       if(verbose == 1) printf("Debug: avg rrd_fetch_r return=%d, ds count=%lu\n", ret, ds_cnt);
 
       k=0;
-      int days = ((tend - tstart) / 86400)-3;
-      if(verbose == 1) printf("Debug: result day count=%d\n", days);
+      /* Number of rows rrdtool ACTUALLY returned, using the step it reports
+       * back (not a hardcoded 86400) - rrd_fetch_r() rounds tstart/tend out
+       * to archive row boundaries, so this can (and regularly does) include
+       * a few trailing rows spilling past want_end (next month/year, or the
+       * future). Rather than guess a fixed number of rows to drop, filter
+       * each row by its own real timestamp against what we actually wanted. */
+      long total_rows = (tend - tstart) / step;
+      if(verbose == 1) printf("Debug: rrdtool returned %ld raw rows for this range\n", total_rows);
 
       /* ------------------------------------------------------------- *
        * Go through the returned dataset, and determine min/max values *
@@ -552,22 +605,31 @@ void month_datahtml(int mon, int year, time_t ts){
       double dayavg = 0;
       int daycnt = 0;
 
-      for(j=0; j<(days*ds_cnt); j=j+ds_cnt) {
+      for(long row=0; row<total_rows; row++) {
+         /* RRD labels a row with the timestamp at the END of the
+          * interval it covers - so July 31st's row is timestamped exactly
+          * Aug 1st 00:00:00. Compare against the interval's START instead,
+          * or the last real day of every month would be excluded as if it
+          * belonged to the next one. */
+         time_t row_ts    = tstart + (row+1)*(time_t)step;
+         time_t row_start = row_ts - (time_t)step;
+         if(row_start < want_start || row_start > want_end) continue;
+         j = row*ds_cnt;
          k++;
          if(! isnan(mindata[j])) {
-            if(verbose == 1) printf("Debug: day [%d] value [%d] rrd_fetch_r mindata=[%s:%.2f]\n", k, j, ds_namv[0], mindata[j]);
+            if(verbose == 1) printf("Debug: day [%d] value [%d] rrd_fetch_r mindata=[%s:%.2f]\n", k, (int)j, ds_namv[0], mindata[j]);
             if(daymin > mindata[j]) daymin = mindata[j];
          }
          if(! isnan(maxdata[j])) {
-            if(verbose == 1) printf("Debug: day [%d] value [%d] rrd_fetch_r maxdata=[%s:%.2f]\n", k, j, ds_namv[0], maxdata[j]);
+            if(verbose == 1) printf("Debug: day [%d] value [%d] rrd_fetch_r maxdata=[%s:%.2f]\n", k, (int)j, ds_namv[0], maxdata[j]);
             if(daymax < maxdata[j]) daymax = maxdata[j];
          }
-        /* ---------------------------------------------------------------- *
+        /* -----------------------------------------------------------------*
          * The 'daycnt' variable only counts days when avgdata is not "NaN" *
          * otherwise the average calculation would be wrong (e.g. lower).   *
-         * ---------------------------------------------------------------- */
+         * -----------------------------------------------------------------*/
          if(! isnan(avgdata[j])) {
-            if(verbose == 1) printf("Debug: day [%d] value [%d] rrd_fetch_r avgdata=[%s:%.2f]\n", k, j, ds_namv[0], avgdata[j]);
+            if(verbose == 1) printf("Debug: day [%d] value [%d] rrd_fetch_r avgdata=[%s:%.2f]\n", k, (int)j, ds_namv[0], avgdata[j]);
             dayavg = dayavg + avgdata[j];
             daycnt++;
             if(verbose == 1) printf("Debug: daycnt [%d]\n", daycnt);
